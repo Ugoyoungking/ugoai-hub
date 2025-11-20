@@ -18,6 +18,10 @@ const faqs = [
     answer: "It's designed for developers, content creators, marketers, and businesses who want to leverage artificial intelligence to automate tasks, create high-quality content, and build powerful applications quickly.",
   },
   {
+    question: "Who is behind UGO AI Studio?",
+    answer: "UGO AI Studio is developed and maintained by Ugochukwu, a passionate Web Developer and Graphic Designer dedicated to crafting modern, responsive, and user-focused digital experiences. This project reflects his commitment to excellence and creativity.",
+  },
+  {
     question: "What can I build with the AI App and Website Generators?",
     answer: "You can generate full-stack, responsive applications and websites from a simple text description. The AI handles the code generation, allowing you to focus on the idea and functionality.",
   },
