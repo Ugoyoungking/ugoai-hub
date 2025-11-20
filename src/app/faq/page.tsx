@@ -1,3 +1,4 @@
+
 import {
   Accordion,
   AccordionContent,
@@ -19,7 +20,21 @@ const faqs = [
   },
   {
     question: "Who is behind UGO AI Studio?",
-    answer: "UGO AI Studio is developed and maintained by Ugochukwu, a passionate Web Developer and Graphic Designer dedicated to crafting modern, responsive, and user-focused digital experiences. This project reflects his commitment to excellence and creativity.",
+    answer: (
+      <>
+        UGO AI Studio is developed and maintained by{' '}
+        <a
+          href="https://ugoyoungking.github.io/portfolio/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline text-primary hover:text-primary/80"
+        >
+          Ugochukwu Jonathan
+        </a>
+        , a passionate Web Developer and Graphic Designer dedicated to crafting modern, responsive, and
+        user-focused digital experiences. This project reflects his commitment to excellence and creativity.
+      </>
+    ),
   },
   {
     question: "What can I build with the AI App and Website Generators?",
