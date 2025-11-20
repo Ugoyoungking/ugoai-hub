@@ -2,14 +2,25 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getAuth, onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
+import { 
+  User, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut as firebaseSignOut, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
+import { useToast } from './use-toast';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -19,6 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -29,27 +41,66 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
+  const handleAuthSuccess = () => {
+    router.push('/dashboard');
+    toast({ title: "Successfully authenticated!" });
+  };
+  
+  const handleAuthError = (error: any) => {
+    console.error("Authentication error", error);
+    toast({
+      variant: "destructive",
+      title: "Authentication Failed",
+      description: error.message || "An unknown error occurred.",
+    });
+  };
+
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      router.push('/dashboard');
+      handleAuthSuccess();
     } catch (error) {
-      console.error("Error signing in with Google", error);
+      handleAuthError(error);
     }
   };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      handleAuthSuccess();
+    } catch (error) {
+      handleAuthError(error);
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      handleAuthSuccess();
+    } catch (error) {
+      handleAuthError(error);
+    }
+  };
+
 
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
       router.push('/');
+      toast({ title: "Signed out successfully." });
     } catch (error) {
       console.error("Error signing out", error);
+      toast({
+        variant: "destructive",
+        title: "Sign Out Failed",
+        description: "An error occurred while signing out.",
+      });
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   );

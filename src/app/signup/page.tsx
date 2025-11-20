@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChromeIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -21,8 +20,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function LoginPage() {
-  const { signInWithGoogle, signInWithEmail, user, loading } = useAuth();
+export default function SignupPage() {
+  const { signUpWithEmail, user, loading } = useAuth();
   const router = useRouter();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
@@ -35,8 +34,8 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  const onEmailSubmit = (data: FormData) => {
-    signInWithEmail(data.email, data.password);
+  const onSubmit = (data: FormData) => {
+    signUpWithEmail(data.email, data.password);
   };
 
   if (loading || user) {
@@ -51,11 +50,11 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to continue to UGO AI Studio</CardDescription>
+          <CardTitle className="text-2xl">Create an Account</CardTitle>
+          <CardDescription>Get started with UGO AI Studio today.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <form onSubmit={handleSubmit(onEmailSubmit)} className="space-y-4">
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="m@example.com" {...register('email')} />
@@ -66,27 +65,13 @@ export default function LoginPage() {
               <Input id="password" type="password" {...register('password')} />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full">Sign In with Email</Button>
+            <Button type="submit" className="w-full">Create Account</Button>
           </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-          </div>
-
-          <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
-            <ChromeIcon className="mr-2 h-4 w-4" />
-            Sign in with Google
-          </Button>
         </CardContent>
         <CardFooter className="justify-center text-sm">
-          <p>Don't have an account?&nbsp;</p>
-          <Link href="/signup" className="font-semibold text-primary hover:underline">
-            Sign up
+           <p>Already have an account?&nbsp;</p>
+          <Link href="/login" className="font-semibold text-primary hover:underline">
+            Sign in
           </Link>
         </CardFooter>
       </Card>
