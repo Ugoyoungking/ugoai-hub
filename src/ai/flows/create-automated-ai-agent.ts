@@ -46,7 +46,7 @@ const prompt = ai.definePrompt({
   Agent Goals: {{#each agentGoals}}{{{this}}}\n{{/each}}
   Agent Tasks: {{#each agentTasks}}{{{this}}}\n{{/each}}
 
-  {% if multiAgentCollaborationInstructions %}Multi-Agent Collaboration Instructions: {{{multiAgentCollaborationInstructions}}}\n{% endif %}
+  {{#if multiAgentCollaborationInstructions}}Multi-Agent Collaboration Instructions: {{{multiAgentCollaborationInstructions}}}\n{{/if}}
 
   Consider the agent's ability to think, act, and loop continuously until the goals are achieved.
   If multi-agent collaboration is required, coordinate with other agents to accomplish the tasks efficiently.

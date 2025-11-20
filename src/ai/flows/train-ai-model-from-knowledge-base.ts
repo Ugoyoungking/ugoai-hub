@@ -94,18 +94,16 @@ const trainAIModelFlow = ai.defineFlow(
     outputSchema: TrainAIModelOutputSchema,
   },
   async input => {
-    // TODO: Implement the logic to orchestrate the training process
-    //   1. Call processDocument tool for each document in documentDataUris
-    //   2. Call scrapeWebsite tool for each URL in websiteUrls
-    //   3. Combine all the extracted content
-    //   4. Start the AI model training (this part is simulated in this example)
-
+    // We are simulating the training process, so we just call the prompt
+    // In a real implementation, you would orchestrate tool calls here.
     const {output} = await trainAIModelPrompt(input);
-    console.log('AI Model Training initiated.');
-    // In a real implementation, you would trigger the actual model training here.
+    
+    // In a real implementation, you would trigger the actual model training here,
+    // and the modelId would likely come from the training service.
+    // The prompt is instructing the LLM to provide a modelId in the output.
     return {
-      modelTrainingStatus: 'training', // Indicate that training has started
-      modelId: 'model-' + Date.now(), // Generate a unique model ID
+      modelTrainingStatus: output?.modelTrainingStatus || 'training',
+      modelId: output?.modelId || 'model-' + Date.now(),
     };
   }
 );
