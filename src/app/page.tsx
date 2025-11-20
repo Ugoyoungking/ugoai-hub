@@ -118,7 +118,7 @@ export default function LandingPage() {
                 href="https://ugoyoungking.github.io/portfolio/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-foreground"
+                className="underline text-primary hover:text-primary/80"
               >
                 Ugoyoungking
               </a>
