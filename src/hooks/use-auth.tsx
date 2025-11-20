@@ -41,9 +41,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleAuthSuccess = () => {
+  const handleAuthSuccess = (message: string) => {
     router.push('/dashboard');
-    toast({ title: "Successfully authenticated!" });
+    toast({ title: message });
   };
   
   const handleAuthError = (error: any) => {
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      handleAuthSuccess();
+      handleAuthSuccess("Successfully signed in with Google!");
     } catch (error) {
       handleAuthError(error);
     }
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      handleAuthSuccess();
+      handleAuthSuccess("Successfully signed in!");
     } catch (error) {
       handleAuthError(error);
     }
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUpWithEmail = async (email: string, password: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      handleAuthSuccess();
+      handleAuthSuccess("Account created successfully!");
     } catch (error) {
       handleAuthError(error);
     }
