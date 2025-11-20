@@ -1,4 +1,6 @@
 
+'use client';
+
 import {
   AppWindow,
   BookOpen,
@@ -12,59 +14,118 @@ import {
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { User } from 'firebase/auth';
 
 const features = [
   {
     icon: <BrainCircuit className="h-8 w-8 text-primary" />,
     title: 'AI Autonomous Agents',
     description: 'Deploy agents that can plan, act, and loop to achieve your goals.',
+    href: '/dashboard/ai-agents',
   },
   {
     icon: <Workflow className="h-8 w-8 text-primary" />,
     title: 'AI Workflow Builder',
     description: 'Visually create and automate complex tasks with a drag-and-drop interface.',
+    href: '/dashboard/workflow-builder',
   },
   {
     icon: <AppWindow className="h-8 w-8 text-primary" />,
     title: 'AI App Generator',
     description: 'Generate full-stack applications from a simple text description.',
+    href: '/dashboard/app-generator',
   },
   {
     icon: <LayoutTemplate className="h-8 w-8 text-primary" />,
     title: 'AI Website Builder',
     description: 'Create responsive, production-ready websites in minutes.',
+    href: '/dashboard/website-builder',
   },
   {
     icon: <Clapperboard className="h-8 w-8 text-primary" />,
     title: 'AI Video Generator',
     description: 'Turn scripts into engaging videos with AI-powered presenters.',
+    href: '/dashboard/video-generator',
   },
   {
     icon: <BookOpen className="h-8 w-8 text-primary" />,
     title: 'Knowledge Base Training',
     description: 'Train personalized AI models on your own documents and websites.',
+    href: '/dashboard/knowledge-base',
   },
   {
     icon: <Users className="h-8 w-8 text-primary" />,
     title: 'Real-Time Collaboration',
     description: 'Work with your team in a shared, collaborative environment.',
+    href: '/dashboard/real-time-collab',
   },
   {
     icon: <Rocket className="h-8 w-8 text-primary" />,
     title: 'And much more...',
     description: 'Explore all the features that UGO AI Studio has to offer.',
+    href: '/dashboard',
   },
 ];
 
+function UserNav({ user, signOut }: { user: User; signOut: () => void }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+            <AvatarFallback>{user.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{user.displayName}</p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => signOut()}>
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export default function LandingPage() {
+  const { user, signOut, loading } = useAuth();
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur-sm md:px-6">
-        <Link href="#" className="flex items-center gap-2" prefetch={false}>
+        <Link href="/" className="flex items-center gap-2" prefetch={false}>
           <Logo className="h-8 w-8 text-primary" />
           <span className="font-headline text-lg font-semibold">UGO AI Studio</span>
         </Link>
-        <Button>Get Started</Button>
+        {loading ? null : user ? (
+          <div className="flex items-center gap-4">
+            <Button asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
+            <UserNav user={user} signOut={signOut} />
+          </div>
+        ) : (
+          <Button asChild>
+            <Link href="/login">Login</Link>
+          </Button>
+        )}
       </header>
 
       <main className="flex-1">
@@ -78,7 +139,9 @@ export default function LandingPage() {
             harness the power of AI.
           </p>
           <div className="flex gap-4">
-            <Button size="lg">Start Building for Free</Button>
+            <Button size="lg" asChild>
+              <Link href={user ? '/dashboard' : '/login'}>Start Building for Free</Link>
+            </Button>
             <Button size="lg" variant="outline">
               Request a Demo
             </Button>
@@ -98,11 +161,11 @@ export default function LandingPage() {
             </div>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {features.map((feature) => (
-                <div key={feature.title} className="flex flex-col items-start space-y-3 rounded-lg border bg-card p-6 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg">
+                <Link key={feature.title} href={feature.href} className="flex flex-col items-start space-y-3 rounded-lg border bg-card p-6 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg">
                   {feature.icon}
                   <h3 className="text-xl font-bold">{feature.title}</h3>
                   <p className="text-muted-foreground">{feature.description}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
