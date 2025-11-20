@@ -112,7 +112,17 @@ export default function LandingPage() {
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-8 md:flex-row md:px-6">
           <div className="flex items-center gap-2">
             <Logo className="h-6 w-6 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">© {new Date().getFullYear()} UGO AI Studio</span>
+            <span className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} UGO AI Studio made by{' '}
+              <a
+                href="https://ugoyoungking.github.io/portfolio/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-foreground"
+              >
+                Ugoyoungking
+              </a>
+            </span>
           </div>
           <nav className="flex gap-4 sm:gap-6">
             <Link href="#" className="text-sm hover:underline" prefetch={false}>
