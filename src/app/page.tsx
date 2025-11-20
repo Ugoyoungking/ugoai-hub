@@ -106,9 +106,35 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+        
+        {/* About the Developer Section */}
+        <section id="about-developer" className="bg-background py-20 md:py-32">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                About the Developer
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                I'm Ugochukwu, a passionate and God-fearing Web Developer and Graphic Designer dedicated to
+                crafting modern, responsive, and user-focused digital experiences. My journey began with HTML and
+                CSS, and over time, I've mastered technologies like JavaScript, React, and Node.js. I take pride in
+                transforming creative ideas into functional, visually appealing, and high-performing websites that don't
+                just look great — they make an impact. Every project I build reflects my commitment to excellence,
+                creativity, and faith-driven purpose.
+              </p>
+              <div className="mt-6">
+                <Button asChild size="lg">
+                  <Link href="https://ugoyoungking.github.io/portfolio/" target="_blank" rel="noopener noreferrer">
+                    View My Portfolio
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <footer className="border-t bg-background">
+      <footer className="border-t bg-secondary">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-8 md:flex-row md:px-6">
           <div className="flex items-center gap-2">
             <Logo className="h-6 w-6 text-muted-foreground" />
