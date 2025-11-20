@@ -107,10 +107,10 @@ export default function FaqPage() {
             </span>
           </div>
           <nav className="flex gap-4 sm:gap-6">
-            <Link href="#" className="text-sm hover:underline" prefetch={false}>
+            <Link href="/terms" className="text-sm hover:underline" prefetch={false}>
               Terms
             </Link>
-            <Link href="#" className="text-sm hover:underline" prefetch={false}>
+            <Link href="/privacy" className="text-sm hover:underline" prefetch={false}>
               Privacy
             </Link>
           </nav>
