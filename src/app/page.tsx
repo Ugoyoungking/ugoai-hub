@@ -108,7 +108,7 @@ export default function LandingPage() {
   const { user, signOut, loading } = useAuth();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground animate-in fade-in duration-500">
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background/95 px-4 backdrop-blur-sm md:px-6">
         <Link href="/" className="flex items-center gap-2" prefetch={false}>
           <Logo className="h-8 w-8 text-primary" />
@@ -135,7 +135,7 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="flex flex-col items-center justify-center space-y-6 py-20 text-center md:py-32">
+        <section className="flex flex-col items-center justify-center space-y-6 py-20 text-center md:py-32 animate-in fade-in slide-in-from-top-12 duration-700">
           <h1 className="font-headline text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
             The All-in-One AI Platform
           </h1>
@@ -165,8 +165,13 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {features.map((feature) => (
-                <Link key={feature.title} href={feature.href} className="flex flex-col items-start space-y-3 rounded-lg border bg-card p-6 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg">
+              {features.map((feature, i) => (
+                <Link 
+                  key={feature.title} 
+                  href={feature.href} 
+                  className="flex flex-col items-start space-y-3 rounded-lg border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl animate-in fade-in slide-in-from-bottom-10"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
                   {feature.icon}
                   <h3 className="text-xl font-bold">{feature.title}</h3>
                   <p className="text-muted-foreground">{feature.description}</p>
@@ -234,20 +239,20 @@ export default function LandingPage() {
                 href="https://ugoyoungking.github.io/portfolio/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline text-primary hover:text-primary/80"
+                className="underline text-primary hover:text-primary/80 transition-colors"
               >
                 Ugoyoungking
               </a>
             </span>
           </div>
           <nav className="flex gap-4 sm:gap-6">
-            <Link href="/terms" className="text-sm hover:underline" prefetch={false}>
+            <Link href="/terms" className="text-sm hover:underline transition-colors" prefetch={false}>
               Terms
             </Link>
-            <Link href="/privacy" className="text-sm hover:underline" prefetch={false}>
+            <Link href="/privacy" className="text-sm hover:underline transition-colors" prefetch={false}>
               Privacy
             </Link>
-            <Link href="/faq" className="text-sm hover:underline" prefetch={false}>
+            <Link href="/faq" className="text-sm hover:underline transition-colors" prefetch={false}>
               FAQ
             </Link>
           </nav>
