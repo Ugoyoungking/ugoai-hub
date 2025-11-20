@@ -122,9 +122,14 @@ export default function LandingPage() {
             <UserNav user={user} signOut={signOut} />
           </div>
         ) : (
-          <Button asChild>
-            <Link href="/login">Login</Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button asChild>
+              <Link href="/signup">Get Started</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/login">Login</Link>
+            </Button>
+          </div>
         )}
       </header>
 
@@ -140,7 +145,7 @@ export default function LandingPage() {
           </p>
           <div className="flex gap-4">
             <Button size="lg" asChild>
-              <Link href={user ? '/dashboard' : '/login'}>Start Building for Free</Link>
+              <Link href={user ? '/dashboard' : '/signup'}>Start Building for Free</Link>
             </Button>
             <Button size="lg" variant="outline">
               Request a Demo
