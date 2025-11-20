@@ -107,8 +107,29 @@ export default function LandingPage() {
           </div>
         </section>
         
+        {/* FAQ Section */}
+        <section id="faq-cta" className="bg-background py-20 md:py-32">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Have Questions?
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Find answers to common questions about UGO AI Studio.
+              </p>
+              <div className="mt-6">
+                <Button asChild size="lg">
+                  <Link href="/faq">
+                    Read our FAQ
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* About the Developer Section */}
-        <section id="about-developer" className="bg-background py-20 md:py-32">
+        <section id="about-developer" className="bg-secondary py-20 md:py-32">
           <div className="container mx-auto px-4 md:px-6">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="font-headline text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
@@ -134,7 +155,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t bg-secondary">
+      <footer className="border-t bg-background">
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-8 md:flex-row md:px-6">
           <div className="flex items-center gap-2">
             <Logo className="h-6 w-6 text-muted-foreground" />
@@ -156,6 +177,9 @@ export default function LandingPage() {
             </Link>
             <Link href="#" className="text-sm hover:underline" prefetch={false}>
               Privacy
+            </Link>
+            <Link href="/faq" className="text-sm hover:underline" prefetch={false}>
+              FAQ
             </Link>
           </nav>
         </div>
