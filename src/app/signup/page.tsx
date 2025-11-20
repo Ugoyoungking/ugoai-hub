@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address.'),
@@ -41,7 +42,7 @@ export default function SignupPage() {
   if (loading || user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+        <LoadingSpinner />
       </div>
     );
   }
