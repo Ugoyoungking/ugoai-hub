@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -137,7 +136,7 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="flex flex-col items-center justify-center space-y-6 py-20 text-center md:py-32 animate-in fade-in slide-in-from-top-12 duration-700">
-          <TypingEffect words={['Build', 'Innovate', 'Automate', 'Create']} />
+          <TypingEffect words={['Build', 'Innovate', 'Automate', 'Create', 'Inspire', 'Design', 'Deploy']} />
           <p className="max-w-[700px] text-lg text-muted-foreground md:text-xl">
             From content creation to application development, UGO AI Studio provides all the tools you need to
             harness the power of AI.
