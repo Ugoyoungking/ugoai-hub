@@ -94,4 +94,3 @@ async function downloadVideo(video: MediaPart): Promise<string> {
   const base64 = Buffer.from(buffer).toString('base64');
   return `data:video/mp4;base64,${base64}`;
 }
-
