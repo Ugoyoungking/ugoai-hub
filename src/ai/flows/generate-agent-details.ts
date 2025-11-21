@@ -13,16 +13,16 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GenerateAgentDetailsInputSchema = z.object({
+const GenerateAgentDetailsInputSchema = z.object({
   topic: z.string().describe('The topic or idea for the AI agent.'),
 });
 export type GenerateAgentDetailsInput = z.infer<typeof GenerateAgentDetailsInputSchema>;
 
-export const GenerateAgentDetailsOutputSchema = z.object({
+const GenerateAgentDetailsOutputSchema = z.object({
   agentName: z.string().describe("A concise and descriptive name for the agent."),
   agentDescription: z.string().describe('A detailed description of the AI agent and its purpose.'),
   agentGoals: z.string().describe('A newline-separated list of high-level goals for the AI agent to achieve.'),
-  agentTasks: z.string().describe('A newline-separated list of specific, numbered tasks for the AI agent to perform to accomplish the goals.'),
+  agentTasks: z.string().describe('A specific, numbered list of step-by-step tasks for the AI agent to perform to accomplish the goals.'),
 });
 export type GenerateAgentDetailsOutput = z.infer<typeof GenerateAgentDetailsOutputSchema>;
 

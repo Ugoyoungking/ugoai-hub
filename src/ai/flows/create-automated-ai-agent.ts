@@ -15,10 +15,7 @@ import {z} from 'genkit';
 import {
   writeArticleTool,
   generateIdeaTool,
-  createImageTool,
-  GenerateIdeaOutputSchema,
-  WriteArticleOutputSchema,
-  CreateImageOutputSchema,
+  createImageTool
 } from './design-automated-ai-workflows';
 
 const CreateAutomatedAIAgentInputSchema = z.object({

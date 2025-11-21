@@ -14,16 +14,16 @@ import {googleAI} from '@genkit-ai/google-genai';
 
 
 // Schemas for Tools
-export const GenerateIdeaOutputSchema = z.object({
+const GenerateIdeaOutputSchema = z.object({
   idea: z.string().describe('A single, concise topic idea for a blog post.'),
   articleTitle: z.string().describe('A catchy title for the article based on the idea.'),
 });
 
-export const WriteArticleOutputSchema = z.object({
+const WriteArticleOutputSchema = z.object({
   article: z.string().describe('The full text of the article, formatted in Markdown.'),
 });
 
-export const CreateImageOutputSchema = z.object({
+const CreateImageOutputSchema = z.object({
   imagePrompt: z.string().describe('A descriptive prompt for an image generation model, based on the article content.'),
   imageDataUri: z.string().describe('The generated image as a data URI.'),
 });
