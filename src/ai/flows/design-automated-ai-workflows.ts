@@ -1,18 +1,113 @@
 'use server';
 
 /**
- * @fileOverview AI Workflow Designer.
+ * @fileOverview AI Workflow Designer and Executor.
  *
- * - designAutomatedAIWorkflows - A function that allows users to design automated workflows.
+ * - designAutomatedAIWorkflows - A function that allows users to design and execute automated workflows.
  * - DesignAutomatedAIWorkflowsInput - The input type for the designAutomatedAIWorkflows function.
  * - DesignAutomatedAIWorkflowsOutput - The return type for the designAutomatedAIWorkflows function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
+
+
+// Schemas for Tools
+const GenerateIdeaOutputSchema = z.object({
+  idea: z.string().describe('A single, concise topic idea for a blog post.'),
+  articleTitle: z.string().describe('A catchy title for the article based on the idea.'),
+});
+
+const WriteArticleOutputSchema = z.object({
+  article: z.string().describe('The full text of the article, formatted in Markdown.'),
+});
+
+const CreateImageOutputSchema = z.object({
+  imagePrompt: z.string().describe('A descriptive prompt for an image generation model, based on the article content.'),
+  imageDataUri: z.string().describe('The generated image as a data URI.'),
+});
+
+// Tool Definitions
+const generateIdeaTool = ai.defineTool(
+  {
+    name: 'generateIdea',
+    description: 'Generates a blog post idea and a catchy title based on a general topic.',
+    inputSchema: z.object({
+      topic: z.string().describe('The general topic for the blog post.'),
+    }),
+    outputSchema: GenerateIdeaOutputSchema,
+  },
+  async (input) => {
+    const prompt = `Generate a creative blog post idea and a catchy title for the following topic: ${input.topic}`;
+    const {output} = await ai.generate({
+      prompt,
+      model: 'googleai/gemini-2.5-flash',
+      output: {schema: GenerateIdeaOutputSchema},
+    });
+    return output!;
+  }
+);
+
+const writeArticleTool = ai.defineTool(
+  {
+    name: 'writeArticle',
+    description: 'Writes a full-length article based on a given idea and title.',
+    inputSchema: z.object({
+      idea: z.string().describe('The core idea of the article.'),
+      title: z.string().describe('The title of the article.'),
+    }),
+    outputSchema: WriteArticleOutputSchema,
+  },
+  async (input) => {
+    const prompt = `Write a comprehensive, engaging, and well-structured blog post based on the following title and idea. The article should be in Markdown format.\n\nTitle: ${input.title}\n\nIdea: ${input.idea}`;
+    const {output} = await ai.generate({
+      prompt,
+      model: 'googleai/gemini-2.5-flash',
+      output: {schema: WriteArticleOutputSchema},
+    });
+    return output!;
+  }
+);
+
+const createImageTool = ai.defineTool(
+  {
+    name: 'createImage',
+    description: 'Creates a relevant image for a given article.',
+    inputSchema: z.object({
+      article: z.string().describe('The content of the article to generate an image for.'),
+    }),
+    outputSchema: CreateImageOutputSchema,
+  },
+  async (input) => {
+    // First, generate a good image prompt from the article content
+    const promptGenResult = await ai.generate({
+      prompt: `Based on the following article, create a short, descriptive, and visually compelling prompt for an image generation model like Imagen. The prompt should capture the essence of the article in a single scene.\n\nArticle:\n${input.article.substring(0, 2000)}`,
+      model: 'googleai/gemini-2.5-flash',
+      output: {
+        schema: z.object({
+          imagePrompt: z.string(),
+        }),
+      },
+    });
+    const imagePrompt = promptGenResult.output!.imagePrompt;
+
+    // Then, generate the image
+    const {media} = await ai.generate({
+      model: 'googleai/imagen-4.0-fast-generate-001',
+      prompt: imagePrompt,
+    });
+
+    return {
+      imagePrompt,
+      imageDataUri: media.url,
+    };
+  }
+);
+
 
 const WorkflowBlockSchema = z.object({
-  type: z.string().describe('The type of the workflow block (e.g., GenerateIdea, WriteArticle, CreateImages, MakeSocialCaptions, ExportPDF, PostToSocial).'),
+  type: z.string().describe('The type of the workflow block (e.g., Generate Idea, Write Article, Create Images, MakeSocialCaptions, ExportPDF, PostToSocial).'),
   parameters: z.record(z.any()).optional().describe('Parameters specific to the workflow block.'),
 });
 
@@ -25,8 +120,13 @@ const DesignAutomatedAIWorkflowsInputSchema = z.object({
 export type DesignAutomatedAIWorkflowsInput = z.infer<typeof DesignAutomatedAIWorkflowsInputSchema>;
 
 const DesignAutomatedAIWorkflowsOutputSchema = z.object({
-  success: z.boolean().describe('Indicates if the workflow design was successfully processed.'),
-  message: z.string().describe('A message providing feedback on the workflow design process.'),
+  success: z.boolean().describe('Indicates if the workflow was successfully executed.'),
+  message: z.string().describe('A message providing feedback on the workflow execution.'),
+  results: z.object({
+    idea: GenerateIdeaOutputSchema.optional(),
+    article: WriteArticleOutputSchema.optional(),
+    images: z.array(CreateImageOutputSchema).optional(),
+  }).describe('The outputs from the executed workflow blocks.'),
 });
 
 export type DesignAutomatedAIWorkflowsOutput = z.infer<typeof DesignAutomatedAIWorkflowsOutputSchema>;
@@ -35,43 +135,62 @@ export async function designAutomatedAIWorkflows(input: DesignAutomatedAIWorkflo
   return designAutomatedAIWorkflowsFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'designAutomatedAIWorkflowsPrompt',
-  input: {
-    schema: DesignAutomatedAIWorkflowsInputSchema,
-  },
-  output: {
-    schema: DesignAutomatedAIWorkflowsOutputSchema,
-  },
-  prompt: `You are an AI workflow designer. Analyze the provided workflow design and determine if it's logically sound and complete. Provide feedback on its structure and potential improvements.
-
-Workflow Name: {{{workflowName}}}
-Workflow Description: {{{workflowDescription}}}
-Workflow Blocks:
-{{#each workflowBlocks}}
-  - Type: {{{type}}}
-    Parameters: {{#if parameters}}{{{json parameters}}}{{else}}N/A{{/if}}
-{{/each}}
-
-Respond with a JSON object indicating the success status and a message with your analysis. Consider factors like the types of blocks used, the order of execution, and the completeness of the workflow for content creation and marketing tasks.`,
-});
-
 const designAutomatedAIWorkflowsFlow = ai.defineFlow(
   {
     name: 'designAutomatedAIWorkflowsFlow',
     inputSchema: DesignAutomatedAIWorkflowsInputSchema,
     outputSchema: DesignAutomatedAIWorkflowsOutputSchema,
   },
-  async input => {
+  async (input) => {
+    console.log(`Executing workflow: ${input.workflowName}`);
+
+    const results: z.infer<typeof DesignAutomatedAIWorkflowsOutputSchema>['results'] = {};
+    let lastOutput: any = { topic: input.workflowDescription }; // Start with the workflow description as the initial topic
+
     try {
-      const {output} = await prompt(input);
-      return output!;
+      for (const block of input.workflowBlocks) {
+        console.log(`Executing block: ${block.type}`);
+        if (block.type.includes('Generate Idea')) {
+          const ideaResult = await generateIdeaTool(lastOutput);
+          results.idea = ideaResult;
+          lastOutput = { ...lastOutput, ...ideaResult };
+        } else if (block.type.includes('Write Article')) {
+          if (!lastOutput.idea || !lastOutput.title) {
+            throw new Error('Cannot write article without an idea and title from a previous step.');
+          }
+          const articleResult = await writeArticleTool({ idea: lastOutput.idea, title: lastOutput.articleTitle });
+          results.article = articleResult;
+          lastOutput = { ...lastOutput, ...articleResult };
+        } else if (block.type.includes('Create') && block.type.includes('Image')) {
+           const imageCount = parseInt(block.type.match(/\d+/)?.[0] ?? '1', 10);
+           if (!lastOutput.article) {
+             throw new Error('Cannot create images without an article from a previous step.');
+           }
+           results.images = [];
+           for (let i = 0; i < imageCount; i++) {
+             console.log(`Generating image ${i + 1} of ${imageCount}...`);
+             const imageResult = await createImageTool({ article: lastOutput.article });
+             results.images.push(imageResult);
+           }
+           lastOutput = { ...lastOutput, images: results.images };
+        }
+        // Other block types can be implemented here
+      }
+
+      return {
+        success: true,
+        message: 'Workflow executed successfully.',
+        results,
+      };
     } catch (error: any) {
-      console.error('Error during workflow design:', error);
+      console.error('Error during workflow execution:', error);
       return {
         success: false,
-        message: `Workflow design failed: ${error.message || 'Unknown error'}`,
+        message: `Workflow failed: ${error.message || 'Unknown error'}`,
+        results: {},
       };
     }
   }
 );
+
+    
