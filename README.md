@@ -1,6 +1,6 @@
 # UGO AI Studio
 
-![UGO AI Studio](https://img.shields.io/badge/UGO%20AI%20Studio-v1.0.0-blueviolet) ![License](https://img.shields.io/badge/license-MIT-green)
+![UGO AI Studio](https://github.com/Ugoyoungking/ugoai-hub/) ![License](https://img.shields.io/badge/license-MIT-green)
 
 **The All-in-One AI-Powered Content and Application Development Platform.**
 
