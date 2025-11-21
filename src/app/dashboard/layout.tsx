@@ -1,8 +1,10 @@
 
+
 'use client';
 
 import {
   AppWindow,
+  Bell,
   BookOpen,
   BrainCircuit,
   Clapperboard,
@@ -42,6 +44,7 @@ const navItems = [
   { href: '/dashboard/video-generator', icon: Clapperboard, label: 'Video Generator' },
   { href: '/dashboard/knowledge-base', icon: BookOpen, label: 'Knowledge Base' },
   { href: '/dashboard/real-time-collab', icon: Users, label: 'Collaboration' },
+  { href: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
 ];
 
 function UserNav({ user, signOut }: { user: User; signOut: () => void }) {
