@@ -4,16 +4,16 @@
   "description": "The All-in-One AI-Powered Content and Application Development Platform.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#191919",
+  "background_color": "#240a5e",
   "theme_color": "#673AB7",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "https://image2url.com/images/1763761690569-8855c25f-4eb0-416a-adc1-28cbb328792e.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "https://image2url.com/images/1763761690569-8855c25f-4eb0-416a-adc1-28cbb328792e.png",
       "sizes": "512x512",
       "type": "image/png"
     }
