@@ -17,6 +17,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <head>
+        <link rel="icon" href="https://image2url.com/images/1763761690569-8855c25f-4eb0-416a-adc1-28cbb328792e.png" type="image/png" />
+        <link rel="apple-touch-icon" href="https://image2url.com/images/1763761690569-8855c25f-4eb0-416a-adc1-28cbb328792e.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
