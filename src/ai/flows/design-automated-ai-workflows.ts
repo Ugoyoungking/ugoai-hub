@@ -14,22 +14,22 @@ import {googleAI} from '@genkit-ai/google-genai';
 
 
 // Schemas for Tools
-const GenerateIdeaOutputSchema = z.object({
+export const GenerateIdeaOutputSchema = z.object({
   idea: z.string().describe('A single, concise topic idea for a blog post.'),
   articleTitle: z.string().describe('A catchy title for the article based on the idea.'),
 });
 
-const WriteArticleOutputSchema = z.object({
+export const WriteArticleOutputSchema = z.object({
   article: z.string().describe('The full text of the article, formatted in Markdown.'),
 });
 
-const CreateImageOutputSchema = z.object({
+export const CreateImageOutputSchema = z.object({
   imagePrompt: z.string().describe('A descriptive prompt for an image generation model, based on the article content.'),
   imageDataUri: z.string().describe('The generated image as a data URI.'),
 });
 
 // Tool Definitions
-const generateIdeaTool = ai.defineTool(
+export const generateIdeaTool = ai.defineTool(
   {
     name: 'generateIdea',
     description: 'Generates a blog post idea and a catchy title based on a general topic.',
@@ -49,7 +49,7 @@ const generateIdeaTool = ai.defineTool(
   }
 );
 
-const writeArticleTool = ai.defineTool(
+export const writeArticleTool = ai.defineTool(
   {
     name: 'writeArticle',
     description: 'Writes a full-length article based on a given idea and title.',
@@ -70,7 +70,7 @@ const writeArticleTool = ai.defineTool(
   }
 );
 
-const createImageTool = ai.defineTool(
+export const createImageTool = ai.defineTool(
   {
     name: 'createImage',
     description: 'Creates a relevant image for a given article.',
@@ -155,7 +155,7 @@ const designAutomatedAIWorkflowsFlow = ai.defineFlow(
           results.idea = ideaResult;
           lastOutput = { ...lastOutput, ...ideaResult };
         } else if (block.type.includes('Write Article')) {
-          if (!lastOutput.idea || !lastOutput.title) {
+          if (!lastOutput.idea || !lastOutput.articleTitle) {
             throw new Error('Cannot write article without an idea and title from a previous step.');
           }
           const articleResult = await writeArticleTool({ idea: lastOutput.idea, title: lastOutput.articleTitle });
@@ -192,5 +192,3 @@ const designAutomatedAIWorkflowsFlow = ai.defineFlow(
     }
   }
 );
-
-    
