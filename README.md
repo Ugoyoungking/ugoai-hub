@@ -1,6 +1,6 @@
 # UGO AI Studio
 
-![UGO AI Studio](https://img.shields.io/badge/UGO%20AI%20Studio-v1.0.0-blueviolet) ![License](https://img.shields.io/badge/license-MIT-green)
+![UGO AI Studio](https://github.com/Ugoyoungking/ugoai-hub/) ![License](https://github.com/Ugoyoungking/ugoai-hub/)
 
 **The All-in-One AI-Powered Content and Application Development Platform.**
 
@@ -38,8 +38,8 @@ To get a local copy up and running, follow these simple steps.
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/your-username/ugo-ai-studio.git
-    cd ugo-ai-studio
+    git clonehttps://github.com/Ugoyoungking/ugoai-hub.git
+    cd ugo-ai-hub
     ```
 
 2.  **Install NPM packages:**
