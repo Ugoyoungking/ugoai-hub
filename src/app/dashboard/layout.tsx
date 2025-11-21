@@ -6,10 +6,10 @@ import {
   BookOpen,
   BrainCircuit,
   Clapperboard,
+  LayoutDashboard,
   LayoutTemplate,
   LogOut,
   Menu,
-  Rocket,
   Users,
   Workflow,
 } from 'lucide-react';
@@ -34,14 +34,14 @@ import { cn } from '@/lib/utils';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const navItems = [
-  { href: '/dashboard/ai-agents', icon: BrainCircuit, label: 'AI Autonomous Agents' },
-  { href: '/dashboard/workflow-builder', icon: Workflow, label: 'AI Workflow Builder' },
-  { href: '/dashboard/app-generator', icon: AppWindow, label: 'AI App Generator' },
-  { href: '/dashboard/website-builder', icon: LayoutTemplate, label: 'AI Website Builder' },
-  { href: '/dashboard/video-generator', icon: Clapperboard, label: 'AI Video Generator' },
-  { href: '/dashboard/knowledge-base', icon: BookOpen, label: 'Knowledge Base Training' },
-  { href: '/dashboard/real-time-collab', icon: Users, label: 'Real-Time Collaboration' },
-  { href: '/dashboard', icon: Rocket, label: 'More...' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard/ai-agents', icon: BrainCircuit, label: 'AI Agents' },
+  { href: '/dashboard/workflow-builder', icon: Workflow, label: 'Workflow Builder' },
+  { href: '/dashboard/app-generator', icon: AppWindow, label: 'App Generator' },
+  { href: '/dashboard/website-builder', icon: LayoutTemplate, label: 'Website Builder' },
+  { href: '/dashboard/video-generator', icon: Clapperboard, label: 'Video Generator' },
+  { href: '/dashboard/knowledge-base', icon: BookOpen, label: 'Knowledge Base' },
+  { href: '/dashboard/real-time-collab', icon: Users, label: 'Collaboration' },
 ];
 
 function UserNav({ user, signOut }: { user: User; signOut: () => void }) {
@@ -126,7 +126,7 @@ export default function DashboardLayout({
               <span className="">UGO AI Studio</span>
             </Link>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 overflow-y-auto">
             <SidebarNav />
           </div>
         </div>
@@ -140,14 +140,14 @@ export default function DashboardLayout({
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-              <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+            <SheetContent side="left" className="flex flex-col p-0">
+              <div className="flex h-14 items-center border-b px-4">
                 <Link href="/" className="flex items-center gap-2 font-semibold">
                   <Logo className="h-6 w-6 text-primary" />
                   <span className="">UGO AI Studio</span>
                 </Link>
               </div>
-              <div className="flex-1 py-4">
+              <div className="flex-1 overflow-y-auto py-4">
                   <SidebarNav />
               </div>
             </SheetContent>
@@ -155,7 +155,7 @@ export default function DashboardLayout({
           <div className="w-full flex-1" />
           <UserNav user={user} signOut={signOut} />
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-y-auto">
           {children}
         </main>
       </div>
