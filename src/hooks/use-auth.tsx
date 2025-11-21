@@ -6,13 +6,14 @@ import {
   User, 
   GoogleAuthProvider, 
   signInWithPopup, 
-  signOut as firebaseSignOut, 
+  signOut as firebaseSignout, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
   onAuthStateChanged,
   getAuth,
+  Auth,
 } from 'firebase/auth';
-import { app } from '@/lib/firebase/client'; // Keep static import for the app instance
+import { getApp, getApps, initializeApp, FirebaseApp } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import { useToast } from './use-toast';
 
@@ -27,17 +28,30 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Moved config here to be used only within the client-side provider
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [auth, setAuth] = useState<Auth | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    // getAuth is lightweight and can be called on the server if needed,
-    // but onAuthStateChanged sets up a listener which is client-side.
-    const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const authInstance = getAuth(app);
+    setAuth(authInstance);
+
+    const unsubscribe = onAuthStateChanged(authInstance, (user) => {
       setUser(user);
       setLoading(false);
     });
@@ -60,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithGoogle = async () => {
-    const auth = getAuth(app);
+    if (!auth) return;
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
@@ -71,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
-    const auth = getAuth(app);
+    if (!auth) return;
     try {
       await signInWithEmailAndPassword(auth, email, password);
       handleAuthSuccess("Successfully signed in!");
@@ -81,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signUpWithEmail = async (email: string, password: string) => {
-    const auth = getAuth(app);
+    if (!auth) return;
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       handleAuthSuccess("Account created successfully!");
@@ -90,11 +104,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-
   const signOut = async () => {
-    const auth = getAuth(app);
+    if (!auth) return;
     try {
-      await firebaseSignOut(auth);
+      await firebaseSignout(auth);
       router.push('/');
       toast({ title: "Signed out successfully." });
     } catch (error) {
