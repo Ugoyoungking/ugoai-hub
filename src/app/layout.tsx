@@ -4,10 +4,11 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/hooks/use-auth';
 import { ThemeProvider } from '@/components/theme-provider';
+import { JsonLd } from '@/components/seo/json-ld';
 
 const APP_NAME = "UGO AI Studio";
 const APP_DESCRIPTION = "The All-in-One AI-Powered Content and Application Development Platform.";
-const APP_URL = "https://ugo-ai-studio.vercel.app"; // TODO: Replace with your actual production URL
+const APP_URL = "https://ugo-ai-studio.vercel.app"; 
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
     siteName: APP_NAME,
     images: [{
-      url: `${APP_URL}/og-image.png`, // TODO: Create and add an og-image.png in the public folder
+      url: `${APP_URL}/og-image.png`, 
       width: 1200,
       height: 630,
       alt: APP_NAME,
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@ugoyoungking", // TODO: Replace with your Twitter handle
+    creator: "@ugoyoungking", 
     title: APP_NAME,
     description: APP_DESCRIPTION,
     images: [`${APP_URL}/og-image.png`],
@@ -80,6 +81,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet" />
+        <JsonLd />
         <script
           dangerouslySetInnerHTML={{
             __html: `
