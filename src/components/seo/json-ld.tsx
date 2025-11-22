@@ -8,7 +8,7 @@ export function JsonLd() {
           "@id": "https://ugoai-hub.vercel.app/#organization",
           "name": "UGO AI Studio",
           "url": "https://ugoai-hub.vercel.app/",
-          "logo": "https://image2url.com/images/1763838272156-fa2c419c-4468-4ac7-95a3-7ca4c66adbe0.png",
+          "logo": "https://image2url.com/images/1763840976823-7f54db93-cbce-4a23-a3ce-241521176f07.jpg",
           "description": "UGO AI Studio is an advanced all-in-one AI platform offering autonomous AI agents, workflow automation, AI app generation, website builders, knowledge-base AI training, and video generation. Built by web developer and designer Ugochukwu Jonathan.",
           "founder": {
             "@id": "https://ugoai-hub.vercel.app/about#person"
