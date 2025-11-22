@@ -11,7 +11,6 @@ import {
   GenerateWebsiteInput,
   GenerateWebsiteOutput,
 } from '@/ai/flows/generate-website-from-description';
-import { saveWebsite, getLatestWebsite, WebsiteData } from '@/lib/firebase/firestore/websites';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
@@ -27,6 +26,9 @@ const formSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
+type StoredWebsite = GenerateWebsiteOutput & { description: string };
+
+const LOCAL_STORAGE_KEY = 'ai-generated-website';
 
 export default function WebsiteBuilderFeature() {
   const [isLoading, setIsLoading] = useState(false);
@@ -43,29 +45,24 @@ export default function WebsiteBuilderFeature() {
   });
 
   useEffect(() => {
-    const loadData = async () => {
-      if (user) {
-        setIsLoading(true);
-        try {
-          const latestWebsite = await getLatestWebsite(user.uid);
-          if (latestWebsite) {
-            setResult({ html: latestWebsite.html, css: latestWebsite.css, js: latestWebsite.js });
-            setValue('description', latestWebsite.description);
-            toast({ title: 'Loaded your last session.' });
-          } else {
+    // Load data from local storage on component mount
+    if (typeof window !== 'undefined') {
+        const savedWebsiteRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (savedWebsiteRaw) {
+            try {
+                const savedWebsite: StoredWebsite = JSON.parse(savedWebsiteRaw);
+                setResult({ html: savedWebsite.html, css: savedWebsite.css, js: savedWebsite.js });
+                setValue('description', savedWebsite.description);
+                toast({ title: 'Loaded your last session.' });
+            } catch (error) {
+                console.error("Failed to parse saved website from localStorage", error);
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+            }
+        } else {
              setValue('description', 'A modern landing page for a new SaaS product called "FlowState". It should have a hero section with a call-to-action, a features section with three key benefits, a pricing section with three tiers, and a simple footer.');
-          }
-        } catch (error) {
-          console.error("Failed to load previous website", error);
-        } finally {
-          setIsLoading(false);
         }
-      }
-    };
-    if (!authLoading) {
-      loadData();
     }
-  }, [user, authLoading, setValue, toast]);
+  }, [setValue, toast]);
 
 
   const handleGeneration = async (currentDescription: string) => {
@@ -87,10 +84,14 @@ export default function WebsiteBuilderFeature() {
         title: 'Website Generated!',
         description: 'Your website code is ready.',
       });
-      if (user) {
-        await saveWebsite(user.uid, currentDescription, response);
-        toast({ title: 'Your work has been saved.' });
+      
+      // Save to local storage
+      if (typeof window !== 'undefined') {
+          const dataToStore: StoredWebsite = { ...response, description: currentDescription };
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToStore));
+          toast({ title: 'Your work has been saved locally.' });
       }
+
       setFollowUp(''); // Clear follow-up after successful generation
     } catch (error) {
       console.error(error);
@@ -115,7 +116,13 @@ export default function WebsiteBuilderFeature() {
         toast({variant: 'destructive', title: 'Generate a website first', description: 'You need an existing website to make changes.'});
         return;
     }
+    // For local storage, we just use the current description field as the source of truth for the conversation
+    const currentDescription = (control as any)._getWatch('description');
+    
     const newDescription = `
+      PREVIOUS DESCRIPTION:
+      ${currentDescription}
+
       PREVIOUS WEBSITE:
       HTML: ${result.html}
       CSS: ${result.css}
@@ -124,8 +131,9 @@ export default function WebsiteBuilderFeature() {
       USER'S MODIFICATION REQUEST:
       ${followUp}
 
-      Please generate the new, complete HTML, CSS, and JS based on this modification request.
+      Please generate the new, complete HTML, CSS, and JS based on this modification request. Also update the description to reflect the changes.
     `;
+    setValue('description', newDescription);
     handleGeneration(newDescription);
   };
 
@@ -283,3 +291,5 @@ export default function WebsiteBuilderFeature() {
     </div>
   );
 }
+
+    
