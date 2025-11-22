@@ -9,11 +9,13 @@ import { JsonLd } from '@/components/seo/json-ld';
 const APP_NAME = "UGO AI Studio";
 const APP_DESCRIPTION = "The All-in-One AI-Powered Content and Application Development Platform.";
 const APP_URL = "https://ugoai-hub.vercel.app"; 
+const APP_DEFAULT_TITLE = "UGO AI Studio | The All-in-One AI-Powered Content and Application Development Platform.";
+
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: APP_NAME,
+    default: APP_DEFAULT_TITLE,
     template: `%s | ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
@@ -39,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: APP_URL,
-    title: APP_NAME,
+    title: APP_DEFAULT_TITLE,
     description: APP_DESCRIPTION,
     siteName: APP_NAME,
     images: [{
@@ -52,7 +54,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     creator: "@ugoyoungking", 
-    title: APP_NAME,
+    title: APP_DEFAULT_TITLE,
     description: APP_DESCRIPTION,
     images: [`https://image2url.com/images/1763841110791-89d33076-5ae1-4795-a944-59a961ecd49a.gif`],
   },
@@ -77,6 +79,7 @@ export default function RootLayout({
         <meta name="robots" content="index, follow" />
         <link rel="icon" href="https://image2url.com/images/1763840976823-7f54db93-cbce-4a23-a3ce-241521176f07.jpg" type="image/png" />
         <link rel="apple-touch-icon" href="https://image2url.com/images/1763840976823-7f54db93-cbce-4a23-a3ce-241521176f07.jpg" />
+        <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
