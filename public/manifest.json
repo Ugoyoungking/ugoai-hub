@@ -1,24 +1,21 @@
-
 {
   "name": "UGO AI Studio",
   "short_name": "UGO AI",
   "description": "The All-in-One AI-Powered Content and Application Development Platform.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#121212",
+  "background_color": "#1E1B2E",
   "theme_color": "#673AB7",
   "icons": [
     {
-      "src": "https://image2url.com/images/1763840976823-7f54db93-cbce-4a23-a3ce-241521176f07.jpg",
+      "src": "https://image2url.com/images/1763849355685-b34dcbae-f7f4-414d-964c-5ec6a51bcb49.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
-      "src": "https://image2url.com/images/1763840976823-7f54db93-cbce-4a23-a3ce-241521176f07.jpg",
+      "src": "https://image2url.com/images/1763849355685-b34dcbae-f7f4-414d-964c-5ec6a51bcb49.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "type": "image/png"
     }
   ]
 }
