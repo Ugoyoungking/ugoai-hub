@@ -5,13 +5,16 @@ import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Sparkles } from 'lucide-react';
 import {
   generateWebsite,
   GenerateWebsiteInput,
   GenerateWebsiteOutput,
 } from '@/ai/flows/generate-website-from-description';
-import { useAuth } from '@/hooks/use-auth';
+import {
+  refineWebsiteDescription,
+  RefineWebsiteDescriptionOutput
+} from '@/ai/flows/refine-website-description';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,12 +35,12 @@ const LOCAL_STORAGE_KEY = 'ai-generated-website';
 
 export default function WebsiteBuilderFeature() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
   const [result, setResult] = useState<GenerateWebsiteOutput | null>(null);
   const [followUp, setFollowUp] = useState('');
-  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  const { control, handleSubmit, formState: { errors }, setValue } = useForm<FormData>({
+  const { control, handleSubmit, formState: { errors }, setValue, getValues } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: '',
@@ -45,7 +48,6 @@ export default function WebsiteBuilderFeature() {
   });
 
   useEffect(() => {
-    // Load data from local storage on component mount
     if (typeof window !== 'undefined') {
         const savedWebsiteRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (savedWebsiteRaw) {
@@ -64,14 +66,9 @@ export default function WebsiteBuilderFeature() {
     }
   }, [setValue, toast]);
 
-
   const handleGeneration = async (currentDescription: string) => {
      setIsLoading(true);
-     if(followUp) {
-        // If there's a follow-up, we don't clear the previous result immediately
-     } else {
-        setResult(null);
-     }
+     setResult(null);
 
     const input: GenerateWebsiteInput = {
         description: currentDescription,
@@ -85,14 +82,10 @@ export default function WebsiteBuilderFeature() {
         description: 'Your website code is ready.',
       });
       
-      // Save to local storage
       if (typeof window !== 'undefined') {
           const dataToStore: StoredWebsite = { ...response, description: currentDescription };
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToStore));
-          toast({ title: 'Your work has been saved locally.' });
       }
-
-      setFollowUp(''); // Clear follow-up after successful generation
     } catch (error) {
       console.error(error);
       toast({
@@ -105,38 +98,28 @@ export default function WebsiteBuilderFeature() {
     }
   };
 
-
   const onSubmit = (data: FormData) => {
     handleGeneration(data.description);
   };
   
-  const handleFollowUp = () => {
-    if (!followUp) return;
-    if (!result) {
-        toast({variant: 'destructive', title: 'Generate a website first', description: 'You need an existing website to make changes.'});
+  const handleRefinePrompt = async () => {
+    const currentDescription = getValues('description');
+    if (!currentDescription) {
+        toast({ variant: 'destructive', title: 'Description is empty', description: 'Please enter a description to refine.' });
         return;
     }
-    // For local storage, we just use the current description field as the source of truth for the conversation
-    const currentDescription = (control as any)._getWatch('description');
-    
-    const newDescription = `
-      PREVIOUS DESCRIPTION:
-      ${currentDescription}
-
-      PREVIOUS WEBSITE:
-      HTML: ${result.html}
-      CSS: ${result.css}
-      JS: ${result.js}
-
-      USER'S MODIFICATION REQUEST:
-      ${followUp}
-
-      Please generate the new, complete HTML, CSS, and JS based on this modification request. Also update the description to reflect the changes.
-    `;
-    setValue('description', newDescription);
-    handleGeneration(newDescription);
+    setIsRefining(true);
+    try {
+        const response: RefineWebsiteDescriptionOutput = await refineWebsiteDescription({ originalPrompt: currentDescription });
+        setValue('description', response.refinedPrompt);
+        toast({ title: 'Prompt Refined!', description: 'Your website description has been enhanced by AI.' });
+    } catch(error) {
+        console.error('Error refining prompt:', error);
+        toast({ variant: 'destructive', title: 'Refinement Failed', description: 'Could not refine the prompt. Please try again.'});
+    } finally {
+        setIsRefining(false);
+    }
   };
-
   
   const downloadCode = () => {
     if (!result) return;
@@ -148,7 +131,6 @@ export default function WebsiteBuilderFeature() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Generated Website</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        ${result.css}
       </head>
       <body>
         ${result.html}
@@ -170,9 +152,8 @@ export default function WebsiteBuilderFeature() {
     <html>
     <head>
       <script src="https://cdn.tailwindcss.com"></script>
-      ${result.css}
     </head>
-    <body>
+    <body class="bg-background">
       ${result.html}
       ${result.js}
     </body>
@@ -190,17 +171,23 @@ export default function WebsiteBuilderFeature() {
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
             <CardContent className="flex-1 space-y-4">
               <div className="space-y-2 h-full flex flex-col">
-                <Label htmlFor="description">Website Description</Label>
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="description">Website Description</Label>
+                   <Button type="button" variant="outline" size="sm" onClick={handleRefinePrompt} disabled={isRefining || isLoading}>
+                        {isRefining ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                        Generate with AI
+                    </Button>
+                </div>
                 <Controller
                   name="description"
                   control={control}
-                  render={({ field }) => <Textarea id="description" placeholder="e.g., A landing page for my new cooking business..." {...field} className="flex-1" rows={8}/>}
+                  render={({ field }) => <Textarea id="description" placeholder="e.g., A landing page for my new cooking business..." {...field} className="flex-1" rows={10}/>}
                 />
                 {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
               </div>
             </CardContent>
             <CardFooter className="flex justify-between">
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading || isRefining}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Generate Website
               </Button>
@@ -213,32 +200,10 @@ export default function WebsiteBuilderFeature() {
             </CardFooter>
           </form>
         </Card>
-        
-        {result && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Refine your Website</CardTitle>
-              <CardDescription>Enter a follow-up instruction to modify the generated website.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Textarea 
-                  placeholder="e.g., 'Change the primary color to blue' or 'Add a testimonials section'"
-                  value={followUp}
-                  onChange={(e) => setFollowUp(e.target.value)}
-                  disabled={isLoading}
-                />
-                <Button onClick={handleFollowUp} disabled={isLoading || !followUp}>
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : 'Refine'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
       
       <div className="flex flex-col h-full min-h-[600px]">
-        {isLoading && !result && ( // Only show this big loader on initial generation
+        {isLoading && (
           <div className="flex h-full items-center justify-center rounded-lg border border-dashed">
             <div className="text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
@@ -247,20 +212,14 @@ export default function WebsiteBuilderFeature() {
             </div>
           </div>
         )}
-        {result ? (
+        {result && !isLoading ? (
           <Tabs defaultValue="preview" className="flex h-full flex-col">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="preview">Preview</TabsTrigger>
               <TabsTrigger value="html">HTML</TabsTrigger>
-              <TabsTrigger value="css">CSS</TabsTrigger>
               <TabsTrigger value="js">JS</TabsTrigger>
             </TabsList>
             <div className="flex-1 overflow-hidden rounded-b-lg border border-t-0 relative">
-               {isLoading && ( // Small overlay loader for refinements
-                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
-                         <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-                    </div>
-                )}
               <TabsContent value="preview" className="h-full m-0">
                  <iframe
                     srcDoc={previewSrcDoc}
@@ -271,9 +230,6 @@ export default function WebsiteBuilderFeature() {
               </TabsContent>
               <TabsContent value="html" className="h-full overflow-auto m-0 p-0">
                 <CodeBlock code={result.html} language="html" className="h-full rounded-none border-none" />
-              </TabsContent>
-              <TabsContent value="css" className="h-full overflow-auto m-0 p-0">
-                 <CodeBlock code={result.css} language="css" className="h-full rounded-none border-none" />
               </TabsContent>
               <TabsContent value="js" className="h-full overflow-auto m-0 p-0">
                  <CodeBlock code={result.js} language="javascript" className="h-full rounded-none border-none" />
@@ -291,5 +247,3 @@ export default function WebsiteBuilderFeature() {
     </div>
   );
 }
-
-    
