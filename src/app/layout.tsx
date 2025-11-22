@@ -1,15 +1,69 @@
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/hooks/use-auth';
 import { ThemeProvider } from '@/components/theme-provider';
 
+const APP_NAME = "UGO AI Studio";
+const APP_DESCRIPTION = "The All-in-One AI-Powered Content and Application Development Platform.";
+const APP_URL = "https://ugo-ai-studio.vercel.app"; // TODO: Replace with your actual production URL
+
 export const metadata: Metadata = {
-  title: 'UGO AI Studio',
-  description: 'The All-in-One AI-Powered Content and Application Development Platform.',
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: APP_NAME,
+    template: `%s | ${APP_NAME}`,
+  },
+  description: APP_DESCRIPTION,
+  applicationName: APP_NAME,
+  keywords: [
+    "AI",
+    "Autonomous Agents",
+    "Workflow Builder",
+    "App Generator",
+    "Website Builder",
+    "Video Generator",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+  ],
   manifest: '/manifest.json',
+  verification: {
+    google: "W3MpZ-n3f__nszkbbn7M_8K2F8fttcYJTqwkJrwfX8o",
+    other: {
+      "msvalidate.01": "63A610B3C9552E33F88103CB9AD8CF70",
+    }
+  },
+  openGraph: {
+    type: "website",
+    url: APP_URL,
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+    siteName: APP_NAME,
+    images: [{
+      url: `${APP_URL}/og-image.png`, // TODO: Create and add an og-image.png in the public folder
+      width: 1200,
+      height: 630,
+      alt: APP_NAME,
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@ugoyoungking", // TODO: Replace with your Twitter handle
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+    images: [`${APP_URL}/og-image.png`],
+  },
 };
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#673AB7" },
+    { media: "(prefers-color-scheme: dark)", color: "#8B5CF6" },
+  ],
+};
+
 
 export default function RootLayout({
   children,
