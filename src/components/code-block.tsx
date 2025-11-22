@@ -28,8 +28,9 @@ export function CodeBlock({ code, language = 'jsx', className }: CodeBlockProps)
 
   return (
     <div className={cn('relative rounded-lg border bg-secondary/50 font-code', className)}>
-      <div className="absolute right-2 top-2">
-        <Button variant="ghost" size="icon" onClick={onCopy}>
+      <div className="flex items-center justify-between px-4 py-2 border-b">
+          <span className="text-xs font-semibold uppercase text-muted-foreground">{language}</span>
+        <Button variant="ghost" size="icon" onClick={onCopy} className="h-8 w-8">
           {hasCopied ? <Check className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
           <span className="sr-only">Copy code</span>
         </Button>

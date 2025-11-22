@@ -81,12 +81,12 @@ export default function WebsiteBuilderFeature() {
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
           <CardContent className="flex-1 space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-2 h-full flex flex-col">
               <Label htmlFor="description">Website Description</Label>
               <Controller
                 name="description"
                 control={control}
-                render={({ field }) => <Textarea id="description" placeholder="e.g., A landing page for my new cooking business..." {...field} rows={10} />}
+                render={({ field }) => <Textarea id="description" placeholder="e.g., A landing page for my new cooking business..." {...field} className="flex-1" />}
               />
               {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
             </div>
@@ -106,7 +106,7 @@ export default function WebsiteBuilderFeature() {
         </form>
       </Card>
       
-      <div className="h-full min-h-[500px]">
+      <div className="flex flex-col h-full min-h-[500px]">
         {isLoading && (
           <div className="flex h-full items-center justify-center rounded-lg border border-dashed">
             <div className="text-center">
@@ -117,7 +117,16 @@ export default function WebsiteBuilderFeature() {
           </div>
         )}
         {result && (
-           <CodeBlock code={result.code} className="h-full" />
+           <div className="flex-1 overflow-auto">
+             <CodeBlock code={result.code} language="jsx" className="h-full" />
+           </div>
+        )}
+         {!isLoading && !result && (
+            <div className="flex-1 flex items-center justify-center rounded-lg border border-dashed">
+                <div className="text-center text-muted-foreground">
+                    <p>Your generated website code will appear here.</p>
+                </div>
+            </div>
         )}
       </div>
     </div>
