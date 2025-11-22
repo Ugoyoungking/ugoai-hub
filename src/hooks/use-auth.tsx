@@ -19,6 +19,7 @@ import {
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import { useRouter } from 'next/navigation';
 import { useToast } from './use-toast';
+import { firebaseConfig } from '@/lib/firebase/client';
 
 interface AuthContextType {
   user: User | null;
@@ -34,15 +35,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDty7nU-OJHvBAmvxdEK8GZaYp_fXVeKeM",
-  authDomain: "textme-76d52.firebaseapp.com",
-  projectId: "textme-76d52",
-  storageBucket: "textme-76d52.firebasestorage.app",
-  messagingSenderId: "1016897162508",
-  appId: "1:1016897162508:web:66b2b777ef9d7a0b274d29",
-  measurementId: "G-GLNQDQRV6V"
-};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);

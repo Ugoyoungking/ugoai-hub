@@ -2,11 +2,9 @@
 import { initializeApp, getApps, getApp, FirebaseApp, FirebaseOptions } from 'firebase/app';
 import { getMessaging, Messaging } from 'firebase/messaging';
 import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
 
-// This file is now safe to be included on the server, as it only exports types and functions
-// The actual initialization is done on the client-side in the AuthProvider
-
-const firebaseConfig: FirebaseOptions = {
+export const firebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyDty7nU-OJHvBAmvxdEK8GZaYp_fXVeKeM",
   authDomain: "textme-76d52.firebaseapp.com",
   projectId: "textme-76d52",
@@ -16,15 +14,19 @@ const firebaseConfig: FirebaseOptions = {
   measurementId: "G-GLNQDQRV6V"
 };
 
-function getClientApp() {
+function getClientApp(): FirebaseApp {
   return getApps().length ? getApp() : initializeApp(firebaseConfig);
 }
 
-function getClientAuth() {
+function getClientAuth(): Auth {
   return getAuth(getClientApp());
 }
 
-function getClientMessaging() {
+function getClientFirestore(): Firestore {
+  return getFirestore(getClientApp());
+}
+
+function getClientMessaging(): Messaging | null {
     if (typeof window === 'undefined' || !process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY) {
         return null;
     }
@@ -36,11 +38,10 @@ export { initializeApp, getApps, getApp };
 export type { FirebaseApp, FirebaseOptions };
 
 // Export client-safe getters
-export { getClientApp, getClientAuth, getClientMessaging };
+export { getClientApp, getClientAuth, getClientFirestore, getClientMessaging };
 
-// Export messaging for use in components, but it will be null on the server
-export const messaging = getClientMessaging();
-// Export auth for use in components, but it's better to use the one from AuthProvider
-export const auth = getClientAuth();
-// Export app for use in components
+// Export instances for use in components
 export const app = getClientApp();
+export const auth = getClientAuth();
+export const firestore = getClientFirestore();
+export const messaging = getClientMessaging();

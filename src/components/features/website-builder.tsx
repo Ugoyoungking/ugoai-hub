@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +11,8 @@ import {
   GenerateWebsiteInput,
   GenerateWebsiteOutput,
 } from '@/ai/flows/generate-website-from-description';
+import { saveWebsite, getLatestWebsite, WebsiteData } from '@/lib/firebase/firestore/websites';
+import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,20 +31,54 @@ type FormData = z.infer<typeof formSchema>;
 export default function WebsiteBuilderFeature() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerateWebsiteOutput | null>(null);
+  const [followUp, setFollowUp] = useState('');
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { control, handleSubmit, formState: { errors }, setValue } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      description: 'A modern landing page for a new SaaS product called "FlowState". It should have a hero section with a call-to-action, a features section with three key benefits, a pricing section with three tiers, and a simple footer.',
+      description: '',
     },
   });
 
-  const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
-    setResult(null);
+  useEffect(() => {
+    const loadData = async () => {
+      if (user) {
+        setIsLoading(true);
+        try {
+          const latestWebsite = await getLatestWebsite(user.uid);
+          if (latestWebsite) {
+            setResult({ html: latestWebsite.html, css: latestWebsite.css, js: latestWebsite.js });
+            setValue('description', latestWebsite.description);
+            toast({ title: 'Loaded your last session.' });
+          } else {
+             setValue('description', 'A modern landing page for a new SaaS product called "FlowState". It should have a hero section with a call-to-action, a features section with three key benefits, a pricing section with three tiers, and a simple footer.');
+          }
+        } catch (error) {
+          console.error("Failed to load previous website", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    if (!authLoading) {
+      loadData();
+    }
+  }, [user, authLoading, setValue, toast]);
 
-    const input: GenerateWebsiteInput = data;
+
+  const handleGeneration = async (currentDescription: string) => {
+     setIsLoading(true);
+     if(followUp) {
+        // If there's a follow-up, we don't clear the previous result immediately
+     } else {
+        setResult(null);
+     }
+
+    const input: GenerateWebsiteInput = {
+        description: currentDescription,
+    };
 
     try {
       const response = await generateWebsite(input);
@@ -51,6 +87,11 @@ export default function WebsiteBuilderFeature() {
         title: 'Website Generated!',
         description: 'Your website code is ready.',
       });
+      if (user) {
+        await saveWebsite(user.uid, currentDescription, response);
+        toast({ title: 'Your work has been saved.' });
+      }
+      setFollowUp(''); // Clear follow-up after successful generation
     } catch (error) {
       console.error(error);
       toast({
@@ -62,6 +103,32 @@ export default function WebsiteBuilderFeature() {
       setIsLoading(false);
     }
   };
+
+
+  const onSubmit = (data: FormData) => {
+    handleGeneration(data.description);
+  };
+  
+  const handleFollowUp = () => {
+    if (!followUp) return;
+    if (!result) {
+        toast({variant: 'destructive', title: 'Generate a website first', description: 'You need an existing website to make changes.'});
+        return;
+    }
+    const newDescription = `
+      PREVIOUS WEBSITE:
+      HTML: ${result.html}
+      CSS: ${result.css}
+      JS: ${result.js}
+
+      USER'S MODIFICATION REQUEST:
+      ${followUp}
+
+      Please generate the new, complete HTML, CSS, and JS based on this modification request.
+    `;
+    handleGeneration(newDescription);
+  };
+
   
   const downloadCode = () => {
     if (!result) return;
@@ -106,40 +173,64 @@ export default function WebsiteBuilderFeature() {
 
   return (
     <div className="grid flex-1 gap-6 lg:grid-cols-2">
-      <Card className="flex flex-col">
-        <CardHeader>
-          <CardTitle>AI Website Builder</CardTitle>
-          <CardDescription>Describe your website, and the AI will generate the HTML, CSS, and JavaScript for you.</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
-          <CardContent className="flex-1 space-y-4">
-            <div className="space-y-2 h-full flex flex-col">
-              <Label htmlFor="description">Website Description</Label>
-              <Controller
-                name="description"
-                control={control}
-                render={({ field }) => <Textarea id="description" placeholder="e.g., A landing page for my new cooking business..." {...field} className="flex-1" />}
-              />
-              {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Generate Website
-            </Button>
-            {result && (
-              <Button variant="outline" onClick={downloadCode}>
-                <Download className="mr-2 h-4 w-4" />
-                Download Code
+      <div className="flex flex-col gap-6">
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle>AI Website Builder</CardTitle>
+            <CardDescription>Describe your website, and the AI will generate the HTML, CSS, and JavaScript for you.</CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
+            <CardContent className="flex-1 space-y-4">
+              <div className="space-y-2 h-full flex flex-col">
+                <Label htmlFor="description">Website Description</Label>
+                <Controller
+                  name="description"
+                  control={control}
+                  render={({ field }) => <Textarea id="description" placeholder="e.g., A landing page for my new cooking business..." {...field} className="flex-1" rows={8}/>}
+                />
+                {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button type="submit" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Generate Website
               </Button>
-            )}
-          </CardFooter>
-        </form>
-      </Card>
+              {result && (
+                <Button variant="outline" onClick={downloadCode}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Code
+                </Button>
+              )}
+            </CardFooter>
+          </form>
+        </Card>
+        
+        {result && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Refine your Website</CardTitle>
+              <CardDescription>Enter a follow-up instruction to modify the generated website.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Textarea 
+                  placeholder="e.g., 'Change the primary color to blue' or 'Add a testimonials section'"
+                  value={followUp}
+                  onChange={(e) => setFollowUp(e.target.value)}
+                  disabled={isLoading}
+                />
+                <Button onClick={handleFollowUp} disabled={isLoading || !followUp}>
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin"/> : 'Refine'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
       
       <div className="flex flex-col h-full min-h-[600px]">
-        {isLoading && (
+        {isLoading && !result && ( // Only show this big loader on initial generation
           <div className="flex h-full items-center justify-center rounded-lg border border-dashed">
             <div className="text-center">
               <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
@@ -156,7 +247,12 @@ export default function WebsiteBuilderFeature() {
               <TabsTrigger value="css">CSS</TabsTrigger>
               <TabsTrigger value="js">JS</TabsTrigger>
             </TabsList>
-            <div className="flex-1 overflow-hidden rounded-b-lg border border-t-0">
+            <div className="flex-1 overflow-hidden rounded-b-lg border border-t-0 relative">
+               {isLoading && ( // Small overlay loader for refinements
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
+                         <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+                    </div>
+                )}
               <TabsContent value="preview" className="h-full m-0">
                  <iframe
                     srcDoc={previewSrcDoc}
