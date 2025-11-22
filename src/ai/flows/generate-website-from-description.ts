@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -19,9 +20,9 @@ const GenerateWebsiteInputSchema = z.object({
 export type GenerateWebsiteInput = z.infer<typeof GenerateWebsiteInputSchema>;
 
 const GenerateWebsiteOutputSchema = z.object({
-  code: z
-    .string()
-    .describe('The full, responsive Next.js code for the generated website.'),
+  html: z.string().describe('The full HTML code for the generated website body.'),
+  css: z.string().describe('The CSS code for styling, using Tailwind CSS classes within a <style> tag.'),
+  js: z.string().describe('The JavaScript code for any interactivity.'),
 });
 export type GenerateWebsiteOutput = z.infer<typeof GenerateWebsiteOutputSchema>;
 
@@ -33,22 +34,20 @@ const prompt = ai.definePrompt({
   name: 'generateWebsitePrompt',
   input: {schema: GenerateWebsiteInputSchema},
   output: {schema: GenerateWebsiteOutputSchema},
-  prompt: `You are an expert web developer specializing in Next.js, React, and Tailwind CSS.
+  prompt: `You are an expert web developer specializing in modern HTML, CSS, and JavaScript, with a deep knowledge of Tailwind CSS.
 
-You will generate a single, complete, and production-ready Next.js page component based on the user's description.
+You will generate the code for a complete, production-ready, and responsive webpage based on the user's description.
 
 Description: {{{description}}}
 
 Guidelines:
-1.  **Frameworks**: Use Next.js with React. The component should be a Server Component by default ('use client' should only be used if client-side interactivity is absolutely necessary).
-2.  **Styling**: Use Tailwind CSS for all styling. Use utility classes extensively. Do NOT use inline styles or CSS files.
-3.  **Components**: You may use standard HTML elements (div, h1, p, etc.) and Next.js components like \`next/image\` and \`next/link\`. Do NOT use components that are not part of the standard library (e.g. from ShadCN UI library), as the generated code should be self-contained.
-4.  **Icons**: If icons are needed, use an inline SVG. Do not import from a library.
-5.  **Images**: For images, use placeholder images from \`https://picsum.photos/seed/<seed>/<width>/<height>\`. Example: \`https://picsum.photos/seed/picsum/800/600\`.
-6.  **Code Structure**: The code must be a single, self-contained JSX component. It should not export multiple components. Ensure all JSX is valid and there is a single root element. Do not include any explanations, comments, or markdown formatting in your response. Return only the raw JSX code.
-7.  **Completeness**: The generated code should be a complete page, ready to be saved as a \`.tsx\` file and used in a Next.js project. It must start with the component definition (e.g., \`export default function MyPage() { ... }\`).
+1.  **Structure (HTML)**: Generate clean, semantic HTML for the body of the page. Do not include <html>, <head>, or <body> tags. The HTML should be ready to be placed inside a <body> tag. For images, use placeholder images from \`https://picsum.photos/seed/<seed>/<width>/<height>\`.
+2.  **Styling (CSS)**: Generate a single <style> tag containing all necessary CSS. YOU MUST USE Tailwind CSS utility classes via the @apply directive. DO NOT use standard CSS properties. The website will have access to Tailwind.
+3.  **Interactivity (JavaScript)**: Generate a single <script> tag containing any necessary JavaScript for interactivity (e.g., mobile menu toggles, simple animations). Keep it vanilla JavaScript. Do not use external libraries.
+4.  **Completeness**: The generated code should be fully functional. Ensure all parts work together seamlessly.
+5.  **Code Only**: Do not include any explanations, comments, or markdown formatting in your response. Return only the raw code for each field (html, css, js).
 
-Return only the code.
+Return the HTML, CSS, and JavaScript in the format specified by the output schema.
 `,
 });
 
@@ -60,6 +59,6 @@ const generateWebsiteFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return {code: output!.code!};
+    return output!;
   }
 );
