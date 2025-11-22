@@ -208,17 +208,12 @@ export default function LandingPage() {
                 About the Developer
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                I'm Ugochukwu, a passionate and God-fearing Web Developer and Graphic Designer dedicated to
-                crafting modern, responsive, and user-focused digital experiences. My journey began with HTML and
-                CSS, and over time, I've mastered technologies like JavaScript, React, and Node.js. I take pride in
-                transforming creative ideas into functional, visually appealing, and high-performing websites that don't
-                just look great — they make an impact. Every project I build reflects my commitment to excellence,
-                creativity, and faith-driven purpose.
+                This project is proudly developed by Ugochukwu Jonathan, a passionate Web Developer and Graphic Designer. Discover more about the developer and the vision behind UGO AI Studio.
               </p>
               <div className="mt-6">
                 <Button asChild size="lg">
-                  <Link href="https://ugoyoungking.github.io/portfolio/" target="_blank" rel="noopener noreferrer">
-                    View My Portfolio
+                  <Link href="/about">
+                    More About the Developer
                   </Link>
                 </Button>
               </div>
@@ -252,6 +247,9 @@ export default function LandingPage() {
             </Link>
             <Link href="/faq" className="text-sm hover:underline transition-colors" prefetch={false}>
               FAQ
+            </Link>
+             <Link href="/about" className="text-sm hover:underline transition-colors" prefetch={false}>
+              About
             </Link>
           </nav>
         </div>

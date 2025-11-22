@@ -11,7 +11,7 @@ export function JsonLd() {
           "logo": "https://image2url.com/images/1763838272156-fa2c419c-4468-4ac7-95a3-7ca4c66adbe0.png",
           "description": "UGO AI Studio is an advanced all-in-one AI platform offering autonomous AI agents, workflow automation, AI app generation, website builders, knowledge-base AI training, and video generation. Built by web developer and designer Ugochukwu Jonathan.",
           "founder": {
-            "@id": "https://ugoyoungking.github.io/portfolio/#person"
+            "@id": "https://ugoai-hub.vercel.app/about#person"
           },
           "sameAs": [
             "https://github.com/Ugoyoungking",
@@ -26,11 +26,11 @@ export function JsonLd() {
         },
         {
           "@type": "Person",
-          "@id": "https://ugoyoungking.github.io/portfolio/#person",
+          "@id": "https://ugoai-hub.vercel.app/about#person",
           "name": "Ugochukwu Jonathan",
           "alternateName": "Ugoyoungking",
           "jobTitle": "Web Developer & Graphic Designer",
-          "url": "https://ugoyoungking.github.io/portfolio/",
+          "url": "https://ugoai-hub.vercel.app/about",
           "image": "https://image2url.com/images/1760142087082-0d9360e4-2d41-4459-a0a1-135afa56a7f7.jpg",
           "sameAs": [
             "https://github.com/Ugoyoungking",

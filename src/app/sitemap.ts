@@ -6,6 +6,7 @@ const APP_URL = "https://ugoai-hub.vercel.app";
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     '',
+    '/about',
     '/login',
     '/signup',
     '/forgot-password',
