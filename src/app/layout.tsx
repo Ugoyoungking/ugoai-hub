@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/hooks/use-auth';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'UGO AI Studio',
@@ -16,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="https://image2url.com/images/1763761690569-8855c25f-4eb0-416a-adc1-28cbb328792e.png" type="image/png" />
         <link rel="apple-touch-icon" href="https://image2url.com/images/1763761690569-8855c25f-4eb0-416a-adc1-28cbb328792e.png" />
@@ -42,10 +43,17 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

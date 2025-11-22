@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
+import { ThemeToggleButton } from '@/components/theme-toggle-button';
 
 
 const profileSchema = z.object({
@@ -77,7 +78,7 @@ export default function SettingsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Profile Settings</CardTitle>
-                    <CardDescription>Update your display name and email address.</CardDescription>
+                    <CardDescription>Update your display name, email, and theme.</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleProfileSubmit(onProfileSubmit)}>
                     <CardContent className="space-y-4">
@@ -95,6 +96,14 @@ export default function SettingsPage() {
                             <Input id="email" type="email" value={user?.email ?? ''} disabled />
                              <p className="text-xs text-muted-foreground">Email address cannot be changed.</p>
                         </div>
+                         <Separator />
+                         <div className="space-y-2">
+                             <Label>Theme</Label>
+                             <div className="flex items-center justify-between">
+                                <p className="text-sm text-muted-foreground">Select your preferred application theme.</p>
+                                <ThemeToggleButton />
+                             </div>
+                         </div>
                     </CardContent>
                     <CardFooter>
                         <Button type="submit" disabled={profileLoading}>
