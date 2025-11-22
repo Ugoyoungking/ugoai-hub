@@ -9,7 +9,7 @@ import { JsonLd } from '@/components/seo/json-ld';
 const APP_NAME = "UGO AI Studio";
 const APP_DESCRIPTION = "The All-in-One AI-Powered Content and Application Development Platform.";
 const APP_URL = "https://ugoai-hub.vercel.app"; 
-const APP_DEFAULT_TITLE = "UGO AI Studio | The All-in-One AI-Powered Content and Application Development Platform.";
+const APP_DEFAULT_TITLE = "UGO AI Studio | AI Content & App Development Platform";
 
 
 export const metadata: Metadata = {
