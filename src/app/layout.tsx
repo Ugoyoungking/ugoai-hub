@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
     siteName: APP_NAME,
     images: [{
-      url: `https://image2url.com/images/1763841110791-89d33076-5ae1-4795-a944-59a961ecd49a.gif`, 
+      url: `https://image2url.com/images/1763849355685-b34dcbae-f7f4-414d-964c-5ec6a51bcb49.png`, 
       width: 1200,
       height: 630,
       alt: APP_NAME,
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     creator: "@ugoyoungking", 
     title: APP_DEFAULT_TITLE,
     description: APP_DESCRIPTION,
-    images: [`https://image2url.com/images/1763841110791-89d33076-5ae1-4795-a944-59a961ecd49a.gif`],
+    images: [`https://image2url.com/images/1763849355685-b34dcbae-f7f4-414d-964c-5ec6a51bcb49.png`],
   },
 };
 
