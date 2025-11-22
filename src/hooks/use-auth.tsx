@@ -35,13 +35,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyDty7nU-OJHvBAmvxdEK8GZaYp_fXVeKeM",
+  authDomain: "textme-76d52.firebaseapp.com",
+  projectId: "textme-76d52",
+  storageBucket: "textme-76d52.firebasestorage.app",
+  messagingSenderId: "1016897162508",
+  appId: "1:1016897162508:web:66b2b777ef9d7a0b274d29",
+  measurementId: "G-GLNQDQRV6V"
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
