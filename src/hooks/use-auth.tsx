@@ -12,8 +12,11 @@ import {
   onAuthStateChanged,
   getAuth,
   Auth,
+  sendPasswordResetEmail,
+  updateProfile,
+  updatePassword,
 } from 'firebase/auth';
-import { getApp, getApps, initializeApp, FirebaseApp } from '@/lib/firebase/client';
+import { getApp, getApps, initializeApp } from 'firebase/app';
 import { useRouter } from 'next/navigation';
 import { useToast } from './use-toast';
 
@@ -24,11 +27,13 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
+  updateUserProfile: (displayName: string) => Promise<void>;
+  updateUserPassword: (password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Moved config here to be used only within the client-side provider
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -59,8 +64,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleAuthSuccess = (message: string) => {
-    router.push('/dashboard');
+  const handleAuthSuccess = (message: string, redirect?: string) => {
+    if (redirect) {
+      router.push(redirect);
+    }
     toast({ title: message });
   };
   
@@ -68,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     console.error("Authentication error", error);
     toast({
       variant: "destructive",
-      title: "Authentication Failed",
+      title: "An error occurred",
       description: error.message || "An unknown error occurred.",
     });
   };
@@ -78,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      handleAuthSuccess("Successfully signed in with Google!");
+      handleAuthSuccess("Successfully signed in with Google!", '/dashboard');
     } catch (error) {
       handleAuthError(error);
     }
@@ -88,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!auth) return;
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      handleAuthSuccess("Successfully signed in!");
+      handleAuthSuccess("Successfully signed in!", '/dashboard');
     } catch (error) {
       handleAuthError(error);
     }
@@ -98,7 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!auth) return;
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      handleAuthSuccess("Account created successfully!");
+      handleAuthSuccess("Account created successfully!", '/dashboard');
     } catch (error) {
       handleAuthError(error);
     }
@@ -120,8 +127,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const sendPasswordReset = async (email: string) => {
+    if (!auth) return;
+    try {
+      await sendPasswordResetEmail(auth, email);
+      handleAuthSuccess("Password reset email sent. Please check your inbox.", '/login');
+    } catch (error) {
+      handleAuthError(error);
+    }
+  };
+
+  const updateUserProfile = async (displayName: string) => {
+    if (!auth || !auth.currentUser) return;
+    try {
+      await updateProfile(auth.currentUser, { displayName });
+      // Manually update the user state to reflect the change immediately
+      setUser({ ...auth.currentUser, displayName } as User);
+      toast({ title: "Profile updated successfully!" });
+    } catch (error) {
+      handleAuthError(error);
+    }
+  }
+
+  const updateUserPassword = async (password: string) => {
+    if (!auth || !auth.currentUser) return;
+    try {
+      await updatePassword(auth.currentUser, password);
+      toast({ title: "Password updated successfully!" });
+    } catch (error) {
+      handleAuthError(error);
+    }
+  }
+
+
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut, sendPasswordReset, updateUserProfile, updateUserPassword }}>
       {children}
     </AuthContext.Provider>
   );

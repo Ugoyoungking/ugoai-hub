@@ -12,6 +12,7 @@ import {
   LayoutTemplate,
   LogOut,
   Menu,
+  Settings,
   Users,
   Workflow,
 } from 'lucide-react';
@@ -45,6 +46,7 @@ const navItems = [
   { href: '/dashboard/knowledge-base', icon: BookOpen, label: 'Knowledge Base' },
   { href: '/dashboard/real-time-collab', icon: Users, label: 'Collaboration' },
   { href: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
+  { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 
 function UserNav({ user, signOut }: { user: User; signOut: () => void }) {
@@ -65,6 +67,13 @@ function UserNav({ user, signOut }: { user: User; signOut: () => void }) {
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/dashboard/settings">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />
