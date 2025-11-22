@@ -1,7 +1,7 @@
 
 import { MetadataRoute } from 'next';
 
-const APP_URL = "https://ugo-ai-studio.vercel.app"; // TODO: Replace with your actual production URL
+const APP_URL = "https://ugoai-hub.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [

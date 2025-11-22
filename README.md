@@ -38,8 +38,8 @@ To get a local copy up and running, follow these simple steps.
 
 1.  **Clone the repository:**
     ```sh
-    git clonehttps://github.com/Ugoyoungking/ugoai-hub.git
-    cd ugo-ai-hub
+    git clone https://github.com/Ugoyoungking/ugoai-hub.git
+    cd ugoai-hub
     ```
 
 2.  **Install NPM packages:**
