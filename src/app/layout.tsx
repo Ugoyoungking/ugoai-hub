@@ -74,6 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="robots" content="index, follow" />
         <link rel="icon" href="https://image2url.com/images/1763840976823-7f54db93-cbce-4a23-a3ce-241521176f07.jpg" type="image/png" />
         <link rel="apple-touch-icon" href="https://image2url.com/images/1763840976823-7f54db93-cbce-4a23-a3ce-241521176f07.jpg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

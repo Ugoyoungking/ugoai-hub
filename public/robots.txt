@@ -1,6 +1,21 @@
-# Allow all search engines to crawl the entire site.
-User-agent: *
-Disallow:
+# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
 
-# Point crawlers to the sitemap for better indexing.
+# Allow all major search engines
+User-agent: *
+Disallow: /api/
+Disallow: /dashboard/
+Allow: /
+
+# Explicitly allow Bingbot
+User-agent: Bingbot
+Disallow: /api/
+Disallow: /dashboard/
+Allow: /
+
+# Explicitly allow Googlebot
+User-agent: Googlebot
+Disallow: /api/
+Disallow: /dashboard/
+Allow: /
+
 Sitemap: https://ugoai-hub.vercel.app/sitemap.xml
