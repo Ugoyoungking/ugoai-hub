@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Loader2, SendHorizontal, User as UserIcon, Bot as BotIcon } from 'lucide-react';
-import { generateChatResponse, ChatMessage } from '@/ai/flows/generate-chat-response';
+import { generateChatResponse } from '@/ai/flows/generate-chat-response';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -12,6 +12,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
+import { z } from 'zod';
+
+// Define the schema for a single chat message
+export const ChatMessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  content: z.string(),
+});
+export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
 type FormValues = {
   message: string;
@@ -123,7 +131,7 @@ export default function AiChatFeature() {
                     >
                     {/* Basic markdown simulation for newlines */}
                     {message.content.split('\n').map((line, i) => (
-                      <p key={i}>{line || '\u00A0'}</p>
+                      <p key={i}>{line || ' '}</p>
                     ))}
                     {isLoading && index === messages.length - 1 && (
                       <span className="ml-1 inline-block h-3 w-3 animate-pulse rounded-full bg-muted-foreground" />
