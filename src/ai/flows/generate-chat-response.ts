@@ -6,20 +6,16 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
 
-// Define the schema for a single chat message
-const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
+interface ChatMessage {
+  role: 'user' | 'model';
+  content: string;
+}
 
-// Define the input schema for the chat flow
-const GenerateChatResponseInputSchema = z.object({
-  history: z.array(ChatMessageSchema).describe('The conversation history.'),
-  message: z.string().describe('The latest user message.'),
-});
-type GenerateChatResponseInput = z.infer<typeof GenerateChatResponseInputSchema>;
+interface GenerateChatResponseInput {
+  history: ChatMessage[];
+  message: string;
+}
 
 
 export async function generateChatResponse(
