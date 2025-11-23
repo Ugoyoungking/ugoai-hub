@@ -30,11 +30,11 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'https,
+        protocol: 'https',
         hostname: 'image2url.com',
         port: '',
         pathname: '/**',
-      },
+      }
     ],
   },
    env: {
