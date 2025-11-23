@@ -8,7 +8,7 @@ export const firebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyDty7nU-OJHvBAmvxdEK8GZaYp_fXVeKeM",
   authDomain: "textme-76d52.firebaseapp.com",
   projectId: "textme-76d52",
-  storageBucket: "textme-76d52.firebasestorage.app",
+  storageBucket: "textme-76d52.appspot.com",
   messagingSenderId: "1016897162508",
   appId: "1:1016897162508:web:66b2b777ef9d7a0b274d29",
   measurementId: "G-GLNQDQRV6V"
@@ -30,7 +30,12 @@ function getClientMessaging(): Messaging | null {
     if (typeof window === 'undefined' || !process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY) {
         return null;
     }
-    return getMessaging(getClientApp());
+    try {
+        return getMessaging(getClientApp());
+    } catch (err) {
+        console.error("Failed to initialize Firebase Messaging", err);
+        return null;
+    }
 }
 
 // Re-exporting these for convenience

@@ -2,37 +2,48 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getToken, onMessage } from 'firebase/messaging';
+import { getToken, onMessage, isSupported } from 'firebase/messaging';
 import { messaging } from '@/lib/firebase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Bell, BellOff } from 'lucide-react';
+import { Bell, BellOff, Info } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 export default function NotificationManager() {
   const [permission, setPermission] = useState<NotificationPermission | 'loading'>('loading');
   const [fcmToken, setFcmToken] = useState<string | null>(null);
+  const [notificationsSupported, setNotificationsSupported] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    setPermission(Notification.permission);
-     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      if (messaging) {
-        onMessage(messaging, (payload) => {
+    // Check for support first
+    isSupported().then((supported) => {
+      setNotificationsSupported(supported);
+      if (supported && messaging) {
+        setPermission(Notification.permission);
+        const unsubscribe = onMessage(messaging, (payload) => {
           console.log('Message received. ', payload);
           toast({
             title: payload.notification?.title,
             description: payload.notification?.body,
           });
         });
+        return () => unsubscribe();
+      } else {
+        setPermission('denied');
       }
-    }
+    });
   }, [toast]);
 
   const requestPermission = async () => {
-    if (!messaging) return;
+    if (!notificationsSupported || !messaging) {
+         toast({ variant: 'destructive', title: 'Unsupported Browser', description: 'Your browser does not support push notifications.' });
+         return;
+    };
+    
     try {
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
@@ -105,6 +116,26 @@ export default function NotificationManager() {
     return null;
   }
 
+  if (!notificationsSupported) {
+    return (
+        <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+                <CardTitle>Notification Settings</CardTitle>
+                <CardDescription>Manage how you receive notifications from UGO AI Studio.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <Alert variant="destructive">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Notifications Not Supported</AlertTitle>
+                    <AlertDescription>
+                        Your browser or device does not support push notifications. This is common on browsers like Safari on desktop, and for PWAs on iOS.
+                    </AlertDescription>
+                </Alert>
+            </CardContent>
+        </Card>
+    );
+  }
+
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
@@ -118,7 +149,7 @@ export default function NotificationManager() {
             <div>
               <Label htmlFor="notifications" className="font-semibold">Push Notifications</Label>
               <p className="text-sm text-muted-foreground">
-                Receive updates and alerts even when the app is in the background.
+                Receive updates and alerts from the application.
               </p>
             </div>
           </div>
