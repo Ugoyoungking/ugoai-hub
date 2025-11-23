@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import {
@@ -12,6 +10,7 @@ import {
   LayoutTemplate,
   LogOut,
   Menu,
+  MessageCircle,
   Settings,
   Users,
   Workflow,
@@ -40,6 +39,7 @@ import { Tour } from '@/components/tour';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard/ai-chat', icon: MessageCircle, label: 'AI Chat' },
   { href: '/dashboard/ai-agents', icon: BrainCircuit, label: 'AI Agents' },
   { href: '/dashboard/workflow-builder', icon: Workflow, label: 'Workflow Builder' },
   { href: '/dashboard/app-generator', icon: AppWindow, label: 'App Generator' },

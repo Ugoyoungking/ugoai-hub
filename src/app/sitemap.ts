@@ -1,4 +1,3 @@
-
 import { MetadataRoute } from 'next';
 
 const APP_URL = "https://ugoai-hub.vercel.app";
@@ -14,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/privacy',
     '/terms',
     '/dashboard',
+    '/dashboard/ai-chat',
     '/dashboard/ai-agents',
     '/dashboard/workflow-builder',
     '/dashboard/app-generator',
