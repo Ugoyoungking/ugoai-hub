@@ -19,7 +19,7 @@ export const firebaseConfig: FirebaseOptions & { geminiApiKey?: string } = {
 if (!firebaseConfig.apiKey) {
     throw new Error('Missing Firebase API key from environment variables.');
 }
-if (firebaseConfig.geminiApiKey === "AIzaSyDkcgZ9016XEft0QdmKG17uoS-SAqsowHI" || !firebaseConfig.geminiApiKey) {
+if (firebaseConfig.geminiApiKey === "YOUR GEMINI API KEY HERE" || !firebaseConfig.geminiApiKey) {
     // This check is to prevent deploying without the key.
     console.warn("GEMINI API KEY is not set in firebaseConfig. AI features will fail. Please replace the placeholder key.");
 }
