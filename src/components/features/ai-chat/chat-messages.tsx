@@ -1,4 +1,3 @@
-
 'use client';
 
 import { BotIcon, Code, Database, User as UserIcon } from 'lucide-react';
@@ -9,8 +8,11 @@ import type { ChatMessage } from '../ai-chat';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEffect, useRef } from 'react';
 import { ChatForm } from './chat-form';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { CodeBlock } from '@/components/code-block';
+
 
 const UserAvatar = ({ user }: { user: any }) => (
   <Avatar className="h-8 w-8">
@@ -40,6 +42,39 @@ const StarterPromptCard = ({ icon, title, subtitle, onClick }: { icon: React.Rea
         </div>
     </Button>
 );
+
+const MemoizedChatMessage = ({ message }: { message: ChatMessage }) => {
+  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+  const parts = message.content.split(codeBlockRegex);
+
+  return (
+    <div className="prose prose-sm dark:prose-invert max-w-none">
+      {parts.map((part, index) => {
+        const isCodeBlock = index % 3 === 2;
+        const language = parts[index - 1] || 'bash';
+
+        if (isCodeBlock) {
+          return (
+            <CodeBlock
+              key={index}
+              language={language}
+              code={part}
+              className="my-4"
+            />
+          );
+        }
+
+        // Render regular text parts
+        if (part.trim() === '') return null;
+        
+        return part.split('\n').map((line, i) => (
+          <p key={`${index}-${i}`} className="mb-0">{line || ' '}</p>
+        ));
+      })}
+    </div>
+  );
+};
+
 
 interface ChatMessagesProps {
     messages: ChatMessage[];
@@ -111,13 +146,13 @@ export function ChatMessages({ messages, isLoading, onSendMessage }: ChatMessage
                       : 'bg-secondary'
                   )}
                 >
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    {message.content.split('\n').map((line, i) => (
-                      <p key={i} className="mb-0">{line || ' '}</p>
-                    ))}
-                  </div>
-                  {isLoading && index === messages.length - 1 && (
-                    <span className="ml-1 inline-block h-3 w-3 animate-pulse rounded-full bg-muted-foreground" />
+                  <MemoizedChatMessage message={message} />
+                  {isLoading && index === messages.length - 1 && message.content.length === 0 && (
+                     <div className="flex items-center space-x-1">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-muted-foreground" />
+                    </div>
                   )}
                 </div>
                 {message.role === 'user' && <UserAvatar user={user} />}
