@@ -1,3 +1,4 @@
+
 'use client';
 
 import { BotIcon, Code, Database, User as UserIcon } from 'lucide-react';
@@ -118,7 +119,7 @@ export function ChatMessages({ messages, isLoading, onSendMessage }: ChatMessage
                     <h1 className="text-3xl font-bold">UGO AI Studio</h1>
                     <p className="text-muted-foreground">What can I help with?</p>
                  </div>
-                 <div className="grid w-full max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
+                 <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-2 md:max-w-2xl">
                     {starterPrompts.map(prompt => (
                         <StarterPromptCard 
                             key={prompt.title}
