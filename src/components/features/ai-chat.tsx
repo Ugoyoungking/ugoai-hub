@@ -1,87 +1,100 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { Loader2, SendHorizontal, User as UserIcon, Bot as BotIcon } from 'lucide-react';
+import { useState } from 'react';
+import { ChatSidebar } from '@/components/features/ai-chat/chat-sidebar';
+import { ChatMessages } from '@/components/features/ai-chat/chat-messages';
 import { generateChatResponse } from '@/ai/flows/generate-chat-response';
-import { useAuth } from '@/hooks/use-auth';
-import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '../ui/scroll-area';
-import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
 
-// Define the schema for a single chat message
-export const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-export type ChatMessage = z.infer<typeof ChatMessageSchema>;
+export interface ChatMessage {
+  role: 'user' | 'model';
+  content: string;
+}
 
-type FormValues = {
-  message: string;
-};
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+}
 
-const UserAvatar = ({ user }: { user: any }) => (
-  <Avatar className="h-8 w-8">
-    <AvatarImage src={user?.photoURL ?? ''} />
-    <AvatarFallback>
-      {user?.displayName ? user.displayName.charAt(0) : <UserIcon size={16} />}
-    </AvatarFallback>
-  </Avatar>
-);
+// Mock initial chat sessions
+const initialChatSessions: ChatSession[] = [
+    { id: '1', title: 'Portfolio feedback and ideas', messages: [] },
+    { id: '2', title: 'Building free school websites', messages: [] },
+    { id: '3', title: 'Name inquiry response', messages: [] },
+    { id: '4', title: 'UGO AI Studio review', messages: [] },
+];
 
-const BotAvatar = () => (
-  <Avatar className="h-8 w-8 bg-primary text-primary-foreground">
-    <AvatarFallback>
-      <BotIcon size={16} />
-    </AvatarFallback>
-  </Avatar>
-);
 
 export default function AiChatFeature() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>(initialChatSessions);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth();
   const { toast } = useToast();
-  const { register, handleSubmit, reset } = useForm<FormValues>();
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Auto-scroll to bottom when new messages are added
-    if (scrollAreaRef.current) {
-        scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
+  const activeChat = chatSessions.find(session => session.id === activeChatId);
+
+  const handleSendMessage = async (message: string) => {
+    let currentChatId = activeChatId;
+    let newChatCreated = false;
+
+    // If there's no active chat, create a new one
+    if (!currentChatId) {
+      newChatCreated = true;
+      currentChatId = uuidv4();
+      const newChatSession: ChatSession = {
+        id: currentChatId,
+        title: message.substring(0, 40) + (message.length > 40 ? '...' : ''),
+        messages: [],
+      };
+      setChatSessions(prev => [newChatSession, ...prev]);
+      setActiveChatId(currentChatId);
     }
-  }, [messages]);
+    
+    // Add user message to the active chat
+    const userMessage: ChatMessage = { role: 'user', content: message };
+    setChatSessions(prev =>
+      prev.map(session =>
+        session.id === currentChatId
+          ? { ...session, messages: [...session.messages, userMessage] }
+          : session
+      )
+    );
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    if (!data.message.trim()) return;
-
-    const userMessage: ChatMessage = { role: 'user', content: data.message };
-    setMessages(prev => [...prev, userMessage]);
-    reset();
     setIsLoading(true);
 
+    // Prepare for streaming AI response
     const botMessage: ChatMessage = { role: 'model', content: '' };
-    setMessages(prev => [...prev, botMessage]);
-
+     setChatSessions(prev =>
+      prev.map(session =>
+        session.id === currentChatId
+          ? { ...session, messages: [...session.messages, botMessage] }
+          : session
+      )
+    );
+    
     try {
-      await generateChatResponse(
-        { history: messages, message: data.message },
-        (chunk) => {
-          setMessages(prev =>
-            prev.map((msg, index) =>
-              index === prev.length - 1 ? { ...msg, content: msg.content + chunk } : msg
-            )
-          );
-        }
-      );
+        const history = (newChatCreated ? [] : activeChat?.messages) || [];
+        await generateChatResponse(
+            { history, message },
+            (chunk) => {
+            setChatSessions(prev =>
+                prev.map(session =>
+                    session.id === currentChatId
+                    ? {
+                        ...session,
+                        messages: session.messages.map((msg, index) =>
+                        index === session.messages.length - 1
+                            ? { ...msg, content: msg.content + chunk }
+                            : msg
+                        ),
+                      }
+                    : session
+                )
+            );
+            }
+        );
     } catch (error) {
       console.error('Chat error:', error);
       toast({
@@ -89,81 +102,42 @@ export default function AiChatFeature() {
         title: 'An error occurred',
         description: 'Failed to get a response from the AI. Please try again.',
       });
-      // Remove the empty bot message on error
-      setMessages(prev => prev.slice(0, -1));
+       // Remove the optimistic bot message on error
+        setChatSessions(prev =>
+            prev.map(session =>
+                session.id === currentChatId
+                ? { ...session, messages: session.messages.slice(0, -1) }
+                : session
+            )
+        );
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleNewChat = () => {
+    setActiveChatId(null);
+  };
+  
+  const selectChat = (id: string) => {
+    setActiveChatId(id);
+  };
+
   return (
-    <div className="flex h-[calc(100vh-8rem)] w-full justify-center">
-        <Card className="flex w-full max-w-4xl flex-col">
-        <CardHeader className="text-center">
-            <h1 className="text-2xl font-bold">AI Chat</h1>
-            <p className="text-muted-foreground">Chat with our advanced AI assistant.</p>
-        </CardHeader>
-        <CardContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full pr-4" ref={scrollAreaRef}>
-            <div className="space-y-6">
-                {messages.length === 0 && (
-                     <div className="flex h-full min-h-[300px] flex-col items-center justify-center text-center">
-                        <BotIcon className="h-16 w-16 text-muted-foreground" />
-                        <p className="mt-4 font-semibold text-lg">How can I help you today?</p>
-                     </div>
-                )}
-                {messages.map((message, index) => (
-                <div
-                    key={index}
-                    className={cn(
-                    'flex items-start gap-3',
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                    )}
-                >
-                    {message.role === 'model' && <BotAvatar />}
-                    <div
-                    className={cn(
-                        'max-w-prose rounded-lg p-3 text-sm',
-                        message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-secondary'
-                    )}
-                    >
-                    {/* Basic markdown simulation for newlines */}
-                    {message.content.split('\n').map((line, i) => (
-                      <p key={i}>{line || ' '}</p>
-                    ))}
-                    {isLoading && index === messages.length - 1 && (
-                      <span className="ml-1 inline-block h-3 w-3 animate-pulse rounded-full bg-muted-foreground" />
-                    )}
-                    </div>
-                    {message.role === 'user' && <UserAvatar user={user} />}
-                </div>
-                ))}
-            </div>
-            </ScrollArea>
-        </CardContent>
-        <CardFooter>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex w-full items-center gap-2">
-            <Textarea
-                {...register('message')}
-                placeholder="Type your message here..."
-                className="flex-1 resize-none"
-                rows={1}
-                onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(onSubmit)();
-                }
-                }}
-            />
-            <Button type="submit" size="icon" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin" /> : <SendHorizontal />}
-                <span className="sr-only">Send</span>
-            </Button>
-            </form>
-        </CardFooter>
-        </Card>
+    <div className="grid h-full grid-cols-[260px_1fr] rounded-lg border bg-background">
+      <ChatSidebar 
+        sessions={chatSessions} 
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={selectChat}
+      />
+      <div className="relative flex h-full flex-col">
+        <ChatMessages 
+            messages={activeChat?.messages || []}
+            isLoading={isLoading}
+            onSendMessage={handleSendMessage}
+        />
+      </div>
     </div>
   );
 }
