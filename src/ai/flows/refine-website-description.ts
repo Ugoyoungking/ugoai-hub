@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -10,6 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const RefineWebsiteDescriptionInputSchema = z.object({
   originalPrompt: z.string().describe('The user\'s initial, brief idea for a website.'),
@@ -29,6 +31,7 @@ const prompt = ai.definePrompt({
   name: 'refineWebsitePrompt',
   input: {schema: RefineWebsiteDescriptionInputSchema},
   output: {schema: RefineWebsiteDescriptionOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are an expert prompt engineer and UX designer. A user has provided a brief idea for a website. Your task is to expand this idea into a detailed, structured prompt that our AI web developer can use to build a fantastic landing page.
 
 User's Idea: "{{originalPrompt}}"

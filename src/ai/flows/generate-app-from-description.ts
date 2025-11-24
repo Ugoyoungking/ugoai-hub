@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -10,6 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const GenerateAppCodeInputSchema = z.object({
   description: z
@@ -41,6 +43,7 @@ const generateAppCodePrompt = ai.definePrompt({
   name: 'generateAppCodePrompt',
   input: {schema: GenerateAppCodeInputSchema},
   output: {schema: GenerateAppCodeOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are an expert software architect who can generate the code for an entire application based on a text description.
 
   Based on the following description:

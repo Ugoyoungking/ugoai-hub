@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -42,7 +43,7 @@ export const generateIdeaTool = ai.defineTool(
     const prompt = `Generate a creative blog post idea and a catchy title for the following topic: ${input.topic}`;
     const {output} = await ai.generate({
       prompt,
-      model: 'googleai/gemini-2.5-flash',
+      model: googleAI.model('gemini-2.5-flash'),
       output: {schema: GenerateIdeaOutputSchema},
     });
     return output!;
@@ -63,7 +64,7 @@ export const writeArticleTool = ai.defineTool(
     const prompt = `Write a comprehensive, engaging, and well-structured blog post based on the following title and idea. The article should be in Markdown format.\n\nTitle: ${input.title}\n\nIdea: ${input.idea}`;
     const {output} = await ai.generate({
       prompt,
-      model: 'googleai/gemini-2.5-flash',
+      model: googleAI.model('gemini-2.5-flash'),
       output: {schema: WriteArticleOutputSchema},
     });
     return output!;
@@ -83,7 +84,7 @@ export const createImageTool = ai.defineTool(
     // First, generate a good image prompt from the article content
     const promptGenResult = await ai.generate({
       prompt: `Based on the following article, create a short, descriptive, and visually compelling prompt for an image generation model like Imagen. The prompt should capture the essence of the article in a single scene.\n\nArticle:\n${input.article.substring(0, 2000)}`,
-      model: 'googleai/gemini-2.5-flash',
+      model: googleAI.model('gemini-2.5-flash'),
       output: {
         schema: z.object({
           imagePrompt: z.string(),
@@ -94,7 +95,7 @@ export const createImageTool = ai.defineTool(
 
     // Then, generate the image
     const {media} = await ai.generate({
-      model: 'googleai/imagen-4.0-fast-generate-001',
+      model: googleAI.model('imagen-4.0-fast-generate-001'),
       prompt: imagePrompt,
     });
 

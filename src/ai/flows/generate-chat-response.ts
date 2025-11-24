@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A conversational AI chat flow.
@@ -6,6 +7,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 interface ChatMessage {
   role: 'user' | 'model';
@@ -28,7 +30,7 @@ export async function generateChatResponse(
 
   // Use `generateStream` to get a stream of response chunks
   const { stream } = ai.generateStream({
-    model: 'googleai/gemini-2.5-flash',
+    model: googleAI.model('gemini-2.5-flash'),
     history,
     prompt: input.message,
   });

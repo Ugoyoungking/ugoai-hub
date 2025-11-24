@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -12,6 +13,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const GenerateAgentDetailsInputSchema = z.object({
   topic: z.string().describe('The topic or idea for the AI agent.'),
@@ -36,6 +38,7 @@ const prompt = ai.definePrompt({
   name: 'generateAgentDetailsPrompt',
   input: {schema: GenerateAgentDetailsInputSchema},
   output: {schema: GenerateAgentDetailsOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `
     You are an expert project manager specializing in AI-driven automation.
     A user has provided a topic for an autonomous agent. Your job is to break this down into a structured plan that the agent can follow.

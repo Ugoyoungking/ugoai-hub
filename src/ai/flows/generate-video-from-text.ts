@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -11,8 +12,6 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import {googleAI} from '@genkit-ai/google-genai';
-import * as fs from 'fs';
-import {Readable} from 'stream';
 import {MediaPart} from 'genkit';
 
 const GenerateVideoFromTextInputSchema = z.object({
@@ -76,7 +75,7 @@ const generateVideoFromTextFlow = ai.defineFlow(
 async function downloadVideo(video: MediaPart): Promise<string> {
   const fetch = (await import('node-fetch')).default;
   if (!process.env.GEMINI_API_KEY) {
-    throw new Error('GEMINI_API_KEY is not set');
+    throw new Error('GEMINI_API_KEY is not set in environment variables');
   }
   // Add API key before fetching the video.
   const videoDownloadResponse = await fetch(

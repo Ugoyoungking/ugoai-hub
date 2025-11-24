@@ -11,6 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const GenerateWebsiteInputSchema = z.object({
   description: z
@@ -33,6 +34,7 @@ const prompt = ai.definePrompt({
   name: 'generateWebsitePrompt',
   input: {schema: GenerateWebsiteInputSchema},
   output: {schema: z.object({ html: GenerateWebsiteOutputSchema.shape.html, js: GenerateWebsiteOutputSchema.shape.js })},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are an expert web developer specializing in modern HTML and Tailwind CSS.
 
 You will generate the code for a complete, production-ready, and responsive webpage based on the user's description.

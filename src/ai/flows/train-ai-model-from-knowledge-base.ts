@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Trains a personalized AI model from user-provided documents and websites.
@@ -9,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const TrainAIModelInputSchema = z.object({
   documentDataUris: z
@@ -70,6 +72,7 @@ const trainAIModelPrompt = ai.definePrompt({
   input: {schema: TrainAIModelInputSchema},
   output: {schema: TrainAIModelOutputSchema},
   tools: [processDocument, scrapeWebsite],
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are an AI model trainer. The user will provide documents and website URLs. You must process them to train a new AI model. 
 
   The user has provided the following documents:
