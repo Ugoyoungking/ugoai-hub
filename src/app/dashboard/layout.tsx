@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -118,6 +119,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const { start, isCompleted } = useTour();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -170,7 +172,7 @@ export default function DashboardLayout({
                     href={item.href}
                     className={cn(
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                        usePathname() === item.href && 'bg-muted text-primary',
+                        pathname === item.href && 'bg-muted text-primary',
                         isSidebarCollapsed && "justify-center"
                     )}
                     >
