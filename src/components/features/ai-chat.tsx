@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChatSidebar } from '@/components/features/ai-chat/chat-sidebar';
 import { ChatMessages } from '@/components/features/ai-chat/chat-messages';
 import { generateChatResponse } from '@/ai/flows/generate-chat-response';
@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { PanelLeft } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 
 export interface ChatMessage {
   role: 'user' | 'model';
@@ -34,8 +36,13 @@ export default function AiChatFeature() {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>(initialChatSessions);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const isMobile = useIsMobile();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(isMobile);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsSidebarCollapsed(isMobile);
+  }, [isMobile]);
 
   const activeChat = chatSessions.find(session => session.id === activeChatId);
 
@@ -125,6 +132,9 @@ export default function AiChatFeature() {
   
   const selectChat = (id: string) => {
     setActiveChatId(id);
+    if (isMobile) {
+      setIsSidebarCollapsed(true);
+    }
   };
 
   return (
