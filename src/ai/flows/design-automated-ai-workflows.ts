@@ -13,7 +13,6 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import {googleAI} from '@genkit-ai/google-genai';
 
-
 // Schemas for Tools
 const GenerateIdeaOutputSchema = z.object({
   idea: z.string().describe('A single, concise topic idea for a blog post.'),
@@ -106,9 +105,8 @@ export const createImageTool = ai.defineTool(
   }
 );
 
-
 const WorkflowBlockSchema = z.object({
-  type: z.string().describe('The type of the workflow block (e.g., Generate Idea, Write Article, Create Images, MakeSocialCaptions, ExportPDF, PostToSocial).'),
+  type: z.string().describe('The type of the workflow block (e.g., Generate Idea, Write Article, Create Images).'),
   parameters: z.record(z.any()).optional().describe('Parameters specific to the workflow block.'),
 });
 

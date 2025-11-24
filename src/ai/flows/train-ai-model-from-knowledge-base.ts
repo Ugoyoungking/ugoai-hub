@@ -16,7 +16,7 @@ const TrainAIModelInputSchema = z.object({
   documentDataUris: z
     .array(z.string())
     .describe(
-      'An array of document data URIs (PDFs, Word documents), each as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Corrected description
+      'An array of document data URIs (PDFs, Word documents), each as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
     ),
   websiteUrls: z.array(z.string().url()).describe('An array of website URLs to train the model on.'),
 });
@@ -24,9 +24,8 @@ export type TrainAIModelInput = z.infer<typeof TrainAIModelInputSchema>;
 
 const TrainAIModelOutputSchema = z.object({
   modelTrainingStatus: z
-    .string() // Consider making this an enum for 'training', 'completed', 'failed'
+    .string()
     .describe('The status of the AI model training process.'),
-  // Add potentially a model ID here if you want to track and retrieve the model later
   modelId: z.string().optional().describe('The ID of the trained AI model.'),
 });
 export type TrainAIModelOutput = z.infer<typeof TrainAIModelOutputSchema>;
@@ -39,16 +38,22 @@ const processDocument = ai.defineTool({
     documentDataUri: z
       .string()
       .describe(
-        'The document data URI, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Corrected description
+        'The document data URI, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
       ),
   }),
   outputSchema: z.string().describe('The extracted text content from the document.'),
 }, async (input) => {
-  // TODO: Implement document processing logic here.
-  // This is a placeholder; replace with actual implementation using a library like PDF.js or similar.
-  // For now, just return a dummy string.
-  console.log('Processing document:', input.documentDataUri);
-  return `Extracted content from ${input.documentDataUri}`;
+  // In a real app, you would use a library to parse the document based on its MIME type.
+  // This is a placeholder.
+  console.log('Processing document (mock):', input.documentDataUri.substring(0, 50));
+  const response = await ai.generate({
+    model: googleAI.model('gemini-2.5-flash'),
+    prompt: [
+        {text: "Summarize the key information from the following document content."},
+        {media: {url: input.documentDataUri}}
+    ]
+  });
+  return response.text;
 });
 
 // Define a tool to scrape content from a website URL
@@ -60,33 +65,32 @@ const scrapeWebsite = ai.defineTool({
   }),
   outputSchema: z.string().describe('The text content scraped from the website.'),
 }, async (input) => {
-  // TODO: Implement website scraping logic here.
-  // This is a placeholder; replace with actual implementation using a library like Cheerio or similar.
-  // For now, just return a dummy string.
-  console.log('Scraping website:', input.url);
-  return `Scraped content from ${input.url}`;
+  // In a real app, you'd use a library like Cheerio or Puppeteer.
+  // This is a placeholder.
+  console.log('Scraping website (mock):', input.url);
+  const fetch = (await import('node-fetch')).default;
+  const response = await fetch(input.url);
+  const text = await response.text();
+  // A very basic scrape just to get text content.
+  const summaryResponse = await ai.generate({
+      model: googleAI.model('gemini-2.5-flash'),
+      prompt: `Extract the main textual content from this HTML, ignoring navigation, ads, and footers. Summarize the content: \n\n ${text.substring(0, 8000)}`
+  });
+  return summaryResponse.text;
 });
 
 const trainAIModelPrompt = ai.definePrompt({
   name: 'trainAIModelPrompt',
-  input: {schema: TrainAIModelInputSchema},
+  input: {schema: z.string().describe("A string containing all the aggregated content from documents and websites.")},
   output: {schema: TrainAIModelOutputSchema},
-  tools: [processDocument, scrapeWebsite],
+  tools: [],
   model: googleAI.model('gemini-2.5-flash'),
-  prompt: `You are an AI model trainer. The user will provide documents and website URLs. You must process them to train a new AI model. 
+  prompt: `You are an AI model trainer. You have been given a corpus of text. Your job is to acknowledge that you have received the data and are beginning the training process.
 
-  The user has provided the following documents:
-  {{#each documentDataUris}}
-  - {{this}}
-  {{/each}}
+  Respond with a status of 'training' and a newly generated unique modelId.
 
-  The user has provided the following website URLs:
-  {{#each websiteUrls}}
-  - {{this}}
-  {{/each}}
-
-  Use the processDocument tool to extract text from the documents, and the scrapeWebsite tool to extract text from the websites.
-  Once you have processed all the data, respond with the status of the training, indicating that the training has started.  Include a modelId.
+  Corpus:
+  {{input}}
   `,
 });
 
@@ -97,13 +101,25 @@ const trainAIModelFlow = ai.defineFlow(
     outputSchema: TrainAIModelOutputSchema,
   },
   async input => {
-    // We are simulating the training process, so we just call the prompt
-    // In a real implementation, you would orchestrate tool calls here.
-    const {output} = await trainAIModelPrompt(input);
+    let allContent = '';
+
+    // Process all documents in parallel
+    const docPromises = input.documentDataUris.map(docUri =>
+      processDocument({ documentDataUri: docUri })
+    );
+
+    // Process all websites in parallel
+    const webPromises = input.websiteUrls.map(url =>
+      scrapeWebsite({ url })
+    );
+
+    const docContents = await Promise.all(docPromises);
+    const webContents = await Promise.all(webPromises);
+
+    allContent = [...docContents, ...webContents].join('\n\n---\n\n');
+
+    const {output} = await trainAIModelPrompt(allContent);
     
-    // In a real implementation, you would trigger the actual model training here,
-    // and the modelId would likely come from the training service.
-    // The prompt is instructing the LLM to provide a modelId in the output.
     return {
       modelTrainingStatus: output?.modelTrainingStatus || 'training',
       modelId: output?.modelId || 'model-' + Date.now(),

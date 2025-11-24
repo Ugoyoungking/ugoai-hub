@@ -18,6 +18,7 @@ import {
   generateIdeaTool,
   createImageTool
 } from './design-automated-ai-workflows';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const CreateAutomatedAIAgentInputSchema = z.object({
   agentName: z.string().describe('The name of the AI agent.'),
@@ -37,7 +38,6 @@ export type CreateAutomatedAIAgentOutput = z.infer<typeof CreateAutomatedAIAgent
 export async function createAutomatedAIAgent(input: CreateAutomatedAIAgentInput): Promise<CreateAutomatedAIAgentOutput> {
   return createAutomatedAIAgentFlow(input);
 }
-
 
 // This is the "master" tool that the agent flow will call.
 // It has access to all other tools and decides which ones to use.
@@ -67,6 +67,7 @@ const agentExecutorTool = ai.defineTool(
                  Think step-by-step and use the output of one tool as the input for the next.
                  Your final answer should be a summary of what you accomplished.`,
         tools: [generateIdeaTool, writeArticleTool, createImageTool],
+        model: googleAI.model('gemini-2.5-flash'),
     });
 
     // The output here will be the final text response from the LLM after it has finished
@@ -79,12 +80,12 @@ const agentExecutorTool = ai.defineTool(
   }
 );
 
-
 const prompt = ai.definePrompt({
   name: 'createAutomatedAIAgentPrompt',
   input: {schema: CreateAutomatedAIAgentInputSchema},
   output: {schema: CreateAutomatedAIAgentOutputSchema},
   tools: [agentExecutorTool],
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `
     You are an AI agent manager. Your task is to execute the user's request using the agentExecutorTool.
     The primary goal is: {{agentGoals.[0]}}

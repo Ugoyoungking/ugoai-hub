@@ -33,7 +33,6 @@ export async function generateAgentDetails(input: GenerateAgentDetailsInput): Pr
   return generateAgentDetailsFlow(input);
 }
 
-
 const prompt = ai.definePrompt({
   name: 'generateAgentDetailsPrompt',
   input: {schema: GenerateAgentDetailsInputSchema},
@@ -61,7 +60,6 @@ const prompt = ai.definePrompt({
     Now, generate the details for the user's topic.
   `,
 });
-
 
 const generateAgentDetailsFlow = ai.defineFlow(
   {

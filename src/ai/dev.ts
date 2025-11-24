@@ -1,4 +1,7 @@
 
+import { config } from 'dotenv';
+config(); // Load environment variables from .env file
+
 import '@/ai/flows/train-ai-model-from-knowledge-base.ts';
 import '@/ai/flows/generate-website-from-description.ts';
 import '@/ai/flows/generate-app-from-description.ts';
