@@ -1,13 +1,14 @@
 
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/google-genai';
+import { firebaseConfig } from '@/lib/firebase/client';
 
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("GEMINI_API_KEY is not set in the environment variables. Please add it to your .env file or Vercel environment variables.");
+const geminiApiKey = firebaseConfig.geminiApiKey;
+
+if (!geminiApiKey || geminiApiKey === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
+  throw new Error("GEMINI_API_KEY is not configured in src/lib/firebase/client.ts. Please add it to proceed.");
 }
 
 export const ai = genkit({
-  plugins: [googleAI({apiKey: process.env.GEMINI_API_KEY})],
-  // You can set a default model here if you want
-  // model: 'googleai/gemini-2.5-flash',
+  plugins: [googleAI({apiKey: geminiApiKey})],
 });
