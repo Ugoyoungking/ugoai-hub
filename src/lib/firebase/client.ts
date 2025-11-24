@@ -12,18 +12,16 @@ export const firebaseConfig: FirebaseOptions & { geminiApiKey?: string } = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
-  // LAST RESORT: Paste your Gemini API key here.
-  // This is not a secure practice for public repositories.
-  geminiApiKey: "PASTE_YOUR_GEMINI_API_KEY_HERE" 
+  // IMPORTANT: Replace this with your new, secret Gemini API key.
+  geminiApiKey: "AIzaSyDkcgZ9016XEft0QdmKG17uoS-SAqsowHI"
 };
 
 if (!firebaseConfig.apiKey) {
     throw new Error('Missing Firebase API key from environment variables.');
 }
-if (firebaseConfig.geminiApiKey === "PASTE_YOUR_GEMINI_API_KEY_HERE" || !firebaseConfig.geminiApiKey) {
+if (firebaseConfig.geminiApiKey === "AIzaSyDkcgZ9016XEft0QdmKG17uoS-SAqsowHI" || !firebaseConfig.geminiApiKey) {
     // This check is to prevent deploying without the key.
-    // In a real production app, this check might be more robust.
-    console.warn("GEMINI API KEY is not set in firebaseConfig. AI features will fail.");
+    console.warn("GEMINI API KEY is not set in firebaseConfig. AI features will fail. Please replace the placeholder key.");
 }
 
 
