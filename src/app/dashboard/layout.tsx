@@ -38,6 +38,13 @@ import { cn } from '@/lib/utils';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useTour } from '@/hooks/use-tour';
 import { Tour } from '@/components/tour';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -52,6 +59,27 @@ const navItems = [
   { href: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
+
+function SidebarNav() {
+    const pathname = usePathname();
+    return (
+        <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+            {navItems.map((item) => (
+                <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                    pathname === item.href && 'bg-muted text-primary'
+                )}
+                >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+                </Link>
+            ))}
+        </nav>
+    );
+}
 
 function UserNav({ user, signOut }: { user: User; signOut: () => void }) {
   return (
@@ -86,27 +114,6 @@ function UserNav({ user, signOut }: { user: User; signOut: () => void }) {
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-function SidebarNav() {
-    const pathname = usePathname();
-    return (
-        <nav className="flex flex-col gap-2 px-4">
-            {navItems.map((item) => (
-                <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                    pathname === item.href && 'bg-muted text-primary'
-                )}
-                >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-                </Link>
-            ))}
-        </nav>
-    );
 }
 
 
@@ -148,75 +155,94 @@ export default function DashboardLayout({
   return (
     <>
       <Tour />
-      <div className={cn(
-          "grid min-h-screen w-full",
-          isSidebarCollapsed ? "md:grid-cols-[56px_1fr]" : "md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]",
-          "transition-all duration-300 ease-in-out"
-      )}>
-        <div className={cn("hidden border-r bg-muted/40 md:block")}>
-          <div className="flex h-full max-h-screen flex-col gap-2">
-            <div className={cn(
-                "flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6",
-                isSidebarCollapsed && "justify-center"
-              )}>
-              <Link href="/" className={cn("flex items-center gap-2 font-semibold", isSidebarCollapsed && "justify-center")}>
-                <Logo className="h-6 w-6 text-primary" />
-                <span className={cn(isSidebarCollapsed && "sr-only")}>UGO AI Studio</span>
-              </Link>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <nav className="flex flex-col gap-2 px-4">
-                {navItems.map((item) => (
-                    <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                        pathname === item.href && 'bg-muted text-primary',
-                        isSidebarCollapsed && "justify-center"
-                    )}
-                    >
-                    <item.icon className="h-4 w-4" />
-                    <span className={cn("truncate", isSidebarCollapsed && "sr-only")}>{item.label}</span>
-                    </Link>
-                ))}
-            </nav>
+       <TooltipProvider delayDuration={0}>
+        <div className={cn(
+            "grid min-h-screen w-full",
+            isSidebarCollapsed ? "md:grid-cols-[56px_1fr]" : "md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]",
+            "transition-all duration-300 ease-in-out"
+        )}>
+          <div className={cn("hidden border-r bg-muted/40 md:block")}>
+            <div className="flex h-full max-h-screen flex-col gap-2">
+              <div className={cn(
+                  "flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6",
+                  isSidebarCollapsed && "justify-center px-2"
+                )}>
+                <Link href="/" className={cn("flex items-center gap-2 font-semibold", isSidebarCollapsed && "justify-center")}>
+                  <Logo className="h-6 w-6 text-primary" />
+                  <span className={cn(isSidebarCollapsed && "sr-only")}>UGO AI Studio</span>
+                </Link>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                 <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+                  {navItems.map((item) =>
+                    isSidebarCollapsed ? (
+                      <Tooltip key={item.href}>
+                        <TooltipTrigger asChild>
+                          <Link
+                            href={item.href}
+                            className={cn(
+                              "flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary md:h-8 md:w-8",
+                              pathname === item.href && "bg-accent text-accent-foreground"
+                            )}
+                          >
+                            <item.icon className="h-5 w-5" />
+                            <span className="sr-only">{item.label}</span>
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">{item.label}</TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                          pathname === item.href && "bg-muted text-primary"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    )
+                  )}
+                </nav>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex flex-col">
-          <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-             <Button variant="outline" size="icon" className="shrink-0 hidden md:flex" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
-              <PanelLeft className="h-5 w-5" />
-              <span className="sr-only">Toggle sidebar</span>
-            </Button>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="shrink-0 md:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="flex flex-col p-0">
-                <div className="flex h-14 items-center border-b px-4">
-                  <Link href="/" className="flex items-center gap-2 font-semibold">
-                    <Logo className="h-6 w-6 text-primary" />
-                    <span className="">UGO AI Studio</span>
-                  </Link>
-                </div>
-                <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex flex-col">
+            <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+              <Button variant="outline" size="icon" className="shrink-0 hidden md:flex" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+                <PanelLeft className="h-5 w-5" />
+                <span className="sr-only">Toggle sidebar</span>
+              </Button>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Toggle navigation menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="flex flex-col p-0">
+                   <div className="flex h-14 items-center border-b px-4">
+                    <Link href="/" className="flex items-center gap-2 font-semibold">
+                      <Logo className="h-6 w-6 text-primary" />
+                      <span>UGO AI Studio</span>
+                    </Link>
+                  </div>
+                  <div className="flex-1 overflow-y-auto py-4">
                     <SidebarNav />
-                </div>
-              </SheetContent>
-            </Sheet>
-            <div className="w-full flex-1" />
-            <UserNav user={user} signOut={signOut} />
-          </header>
-          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-y-auto">
-            {children}
-          </main>
+                  </div>
+                </SheetContent>
+              </Sheet>
+              <div className="w-full flex-1" />
+              <UserNav user={user} signOut={signOut} />
+            </header>
+            <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 overflow-y-auto">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </TooltipProvider>
     </>
   );
 }
