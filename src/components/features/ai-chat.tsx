@@ -6,6 +6,9 @@ import { ChatMessages } from '@/components/features/ai-chat/chat-messages';
 import { generateChatResponse } from '@/ai/flows/generate-chat-response';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { PanelLeft } from 'lucide-react';
 
 export interface ChatMessage {
   role: 'user' | 'model';
@@ -31,6 +34,7 @@ export default function AiChatFeature() {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>(initialChatSessions);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { toast } = useToast();
 
   const activeChat = chatSessions.find(session => session.id === activeChatId);
@@ -124,14 +128,24 @@ export default function AiChatFeature() {
   };
 
   return (
-    <div className="grid h-full grid-cols-[260px_1fr] rounded-lg border bg-background">
+    <div className={cn(
+        "grid h-full rounded-lg border bg-background transition-all duration-300 ease-in-out",
+        isSidebarCollapsed ? "grid-cols-[0px_1fr]" : "grid-cols-[260px_1fr]"
+      )}>
       <ChatSidebar 
         sessions={chatSessions} 
         activeChatId={activeChatId}
         onNewChat={handleNewChat}
         onSelectChat={selectChat}
+        isCollapsed={isSidebarCollapsed}
       />
       <div className="relative flex h-full flex-col">
+         <div className="absolute top-3 left-3 z-10">
+            <Button variant="ghost" size="icon" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+              <PanelLeft className="h-5 w-5" />
+              <span className="sr-only">Toggle Sidebar</span>
+            </Button>
+          </div>
         <ChatMessages 
             messages={activeChat?.messages || []}
             isLoading={isLoading}

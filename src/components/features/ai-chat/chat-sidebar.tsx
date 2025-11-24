@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -15,6 +14,7 @@ interface ChatSidebarProps {
   activeChatId: string | null;
   onNewChat: () => void;
   onSelectChat: (id: string) => void;
+  isCollapsed: boolean;
 }
 
 export function ChatSidebar({
@@ -22,11 +22,12 @@ export function ChatSidebar({
   activeChatId,
   onNewChat,
   onSelectChat,
+  isCollapsed,
 }: ChatSidebarProps) {
   const { user } = useAuth();
 
   return (
-    <div className="flex h-full flex-col border-r bg-muted/20 p-2">
+    <div className={cn("flex h-full flex-col border-r bg-muted/20 p-2", isCollapsed && "p-0 invisible")}>
       <div className="p-2">
         <Button onClick={onNewChat} className="w-full justify-start gap-2">
           <Plus className="h-4 w-4" />

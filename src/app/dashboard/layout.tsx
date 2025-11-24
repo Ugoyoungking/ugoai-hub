@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   MessageCircle,
+  PanelLeft,
   Settings,
   Users,
   Workflow,
@@ -30,7 +31,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -116,6 +117,7 @@ export default function DashboardLayout({
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
   const { start, isCompleted } = useTour();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -144,22 +146,48 @@ export default function DashboardLayout({
   return (
     <>
       <Tour />
-      <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-        <div className="hidden border-r bg-muted/40 md:block">
+      <div className={cn(
+          "grid min-h-screen w-full",
+          isSidebarCollapsed ? "md:grid-cols-[56px_1fr]" : "md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]",
+          "transition-all duration-300 ease-in-out"
+      )}>
+        <div className={cn("hidden border-r bg-muted/40 md:block")}>
           <div className="flex h-full max-h-screen flex-col gap-2">
-            <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-              <Link href="/" className="flex items-center gap-2 font-semibold">
+            <div className={cn(
+                "flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6",
+                isSidebarCollapsed && "justify-center"
+              )}>
+              <Link href="/" className={cn("flex items-center gap-2 font-semibold", isSidebarCollapsed && "justify-center")}>
                 <Logo className="h-6 w-6 text-primary" />
-                <span className="">UGO AI Studio</span>
+                <span className={cn(isSidebarCollapsed && "sr-only")}>UGO AI Studio</span>
               </Link>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <SidebarNav />
+              <nav className="flex flex-col gap-2 px-4">
+                {navItems.map((item) => (
+                    <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                        'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                        usePathname() === item.href && 'bg-muted text-primary',
+                        isSidebarCollapsed && "justify-center"
+                    )}
+                    >
+                    <item.icon className="h-4 w-4" />
+                    <span className={cn("truncate", isSidebarCollapsed && "sr-only")}>{item.label}</span>
+                    </Link>
+                ))}
+            </nav>
             </div>
           </div>
         </div>
         <div className="flex flex-col">
           <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+             <Button variant="outline" size="icon" className="shrink-0 hidden md:flex" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
+              <PanelLeft className="h-5 w-5" />
+              <span className="sr-only">Toggle sidebar</span>
+            </Button>
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="shrink-0 md:hidden">
